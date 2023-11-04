@@ -1,0 +1,22 @@
+version: '3'
+
+networks:
+  default:
+    name: traefik
+    external: true
+
+services:
+  web:
+    image: ghcr.io/cords-connect/docker-container:debian-11.1.1.1
+    volumes:
+      - ./config/000-default.conf:/etc/apache2/sites-enabled/000-default.conf
+      - .:/var/www/html
+    command: /usr/sbin/apachectl -DFOREGROUND
+    working_dir: /var/www/html
+    restart: unless-stopped
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.$ROUTERNAME.rule=Host(`$HOSTNAME`)
+      - traefik.http.routers.$ROUTERNAME.tls=true
+      - traefik.http.routers.$ROUTERNAME.entrypoints=https
+      - traefik.http.services.$ROUTERNAME.loadbalancer.server.port=80

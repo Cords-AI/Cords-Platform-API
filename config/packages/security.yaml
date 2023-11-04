@@ -1,0 +1,10 @@
+security:
+  providers:
+    app_user_provider:
+      id: App\Security\UserProvider
+  firewalls:
+    main:
+      custom_authenticators:
+        - App\Security\Authenticator
+  access_control:
+    - { path: .*, roles: ["ROLE_AUTHENTICATED"] }

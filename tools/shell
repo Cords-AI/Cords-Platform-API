@@ -1,0 +1,12 @@
+#!/bin/bash
+DOCKER_USER=$(id -u)
+if [ $DOCKER_USER != 1000 ]; then
+  DOCKER_USER=0;
+fi
+
+COMMAND=$@
+if [ -z "$COMMAND" ]; then
+  docker compose exec -u $DOCKER_USER web /bin/bash
+else
+  docker compose exec -u $DOCKER_USER web $COMMAND
+fi

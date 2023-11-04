@@ -8,6 +8,7 @@ networks:
 services:
   web:
     image: ghcr.io/cords-connect/docker-container:debian-11.1.1.1
+    hostname: $HOSTNAME
     volumes:
       - ./config/000-default.conf:/etc/apache2/sites-enabled/000-default.conf
       - .:/var/www/html

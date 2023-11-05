@@ -13,10 +13,12 @@ $compose run -u $(id -u) web composer dump-env prod
 rsync \
   -a . \
   --exclude=/docker-compose.override.yml \
+  --exclude=/var \
   --delete \
   $1
 
 cd $1
 docker compose up -d
-docker compose exec -T -u $(id -u) web ./bin/console cache:clear --env prod
+docker compose exec -T -u $(id -u) web ./bin/console doctrine:migrations:migrate
+docker compose exec -T -u $(id -u) web ./bin/console cache:clear
 sudo chmod -R 777 var

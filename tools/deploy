@@ -1,0 +1,22 @@
+#!/bin/bash
+set -ex
+source ~/.secrets
+
+VERSION=`git describe --always`
+export VERSION
+
+j2 .env.j2 > .env
+compose="docker compose -p cords-parnter-portal-backend-builder"
+$compose run -u $(id -u) web composer install
+$compose run -u $(id -u) web composer dump-env prod
+
+rsync \
+  -a . \
+  --exclude=/docker-compose.override.yml \
+  --delete \
+  $1
+
+cd $1
+docker compose up -d
+docker compose exec -T -u $(id -u) web ./bin/console cache:clear --env prod
+sudo chmod -R 777 var

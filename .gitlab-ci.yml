@@ -1,0 +1,7 @@
+stages:
+  - setup
+  - test
+  - teardown
+
+include:
+  - local: .gitlab/workflows/*.yml

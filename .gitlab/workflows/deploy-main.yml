@@ -1,0 +1,18 @@
+Deploy Main:
+  tags:
+    - cd.ubriety.cloud
+  variables:
+    GIT_SUBMODULE_STRATEGY: recursive
+    ROUTERNAME: cords-partner-portal-backend
+    HOSTNAME: backend-partners-cords.stage.ubriety.cloud
+    CLIENT_HOSTNAME: partners-cords.stage.ubriety.cloud
+    APP_ENV: prod
+    COOKIE_DOMAIN: .stage.ubriety.cloud
+  rules:
+    - if: $CI_COMMIT_BRANCH == 'main'
+  stage: setup
+  environment:
+    name: stage/$CI_PROJECT_PATH_SLUG-$CI_COMMIT_REF_SLUG
+    url: https://partner-portal-cords.stage.ubriety.cloud
+  script: |
+    ./tools/deploy /home/ubuntu/sites/backend-partner-portal-cords

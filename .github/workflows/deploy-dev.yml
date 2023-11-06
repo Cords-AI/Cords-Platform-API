@@ -1,0 +1,22 @@
+name: Deploy Dev
+
+on:
+  push:
+    branches:
+      - release/dev
+
+jobs:
+  Deploy-Dev:
+    runs-on: backend-dev 
+    env:
+      ROUTERNAME: cords-partners-backend
+      HOSTNAME: partners.backend.cords.dev
+      CLIENT_HOSTNAME: partners.cords.dev
+      APP_ENV: prod
+      COOKIE_DOMAIN: .cords.dev
+      APP_SECRET: ${{ secrets.APP_SECRET }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - run: ./tools/deploy /nvme1/docker/partners-backend

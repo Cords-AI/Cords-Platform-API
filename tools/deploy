@@ -1,6 +1,6 @@
 #!/bin/bash
-set -ex
 source ~/.secrets
+set -ex
 
 VERSION=`git describe --always`
 export VERSION

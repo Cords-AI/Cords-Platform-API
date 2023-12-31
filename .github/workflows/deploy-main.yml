@@ -1,0 +1,27 @@
+name: Deploy Prod
+
+on:
+  push:
+    branches:
+      - release/prod
+
+jobs:
+  Deploy-Dev:
+    runs-on: backend-prod
+    env:
+      ROUTERNAME: cords-partners-backend
+      HOSTNAME: partners.backend.cords.ai
+      CLIENT_HOSTNAME: partners.cords.ai
+      APP_ENV: prod
+      COOKIE_DOMAIN: .cords.ai
+      APP_SECRET: ${{ secrets.APP_SECRET }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Set DATABASE_URL
+        run: |
+          source ~/.secrets
+          echo "DATABASE_URL=mysql://root:$MYSQL_PASSWORD@mysql_db:3306/partners?serverVersion=8.0&charset=utf8mb4" >> $GITHUB_ENV
+      - run: |
+          ./tools/deploy /nvme1/docker/partners-backend

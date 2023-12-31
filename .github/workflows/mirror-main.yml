@@ -1,0 +1,28 @@
+name: Mirror Main
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  Mirror-Main:
+    runs-on: ubuntu-latest
+    env:
+      BOT_SSH_KEY: ${{ secrets.BOT_SSH_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Mirror
+        run: |
+          # configure ssh
+          mkdir ~/.ssh
+          echo -e "Host *\n    StrictHostKeyChecking no" > ~/.ssh/config
+          echo "$BOT_SSH_KEY" > ~/.ssh/id_ed25519
+          cat ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+
+          # push
+          git remote add public git@github.com:Cords-AI/Cords-Partners-Backend.git
+          git push public main

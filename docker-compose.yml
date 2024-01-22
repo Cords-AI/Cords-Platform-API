@@ -18,5 +18,4 @@ services:
       - traefik.enable=true
       - traefik.http.routers.$ROUTERNAME.rule=Host(`$HOSTNAME`)
       - traefik.http.routers.$ROUTERNAME.tls=true
-      - traefik.http.routers.$ROUTERNAME.entrypoints=https
       - traefik.http.services.$ROUTERNAME.loadbalancer.server.port=80

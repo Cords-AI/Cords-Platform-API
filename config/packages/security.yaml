@@ -1,9 +1,7 @@
 security:
-  providers:
-    app_user_provider:
-      id: App\Security\UserProvider
   firewalls:
     main:
+      stateless: true
       custom_authenticators:
         - App\Security\Authenticator
   access_control:

@@ -16,15 +16,12 @@ class Authenticator extends AbstractAuthenticator
 {
     public function supports(Request $request): ?bool
     {
-        $auth = $request->headers->get('Authorization');
-        return !empty($auth);
+        return !empty($request->headers->get('x-api-key'));
     }
 
     public function authenticate(Request $request): Passport
     {
-        $auth = $request->headers->get('Authorization');
-
-        $token = str_replace("Bearer ", "", $auth);
+        $token = $request->headers->get('x-api-key');
 
         $user = User::create($token);
 

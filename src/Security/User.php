@@ -37,11 +37,11 @@ class User implements UserInterface, JsonSerializable
         }
 
         if(!$decoded) {
-            return $user;
+            return null;
         }
 
         if(!$decoded->email_verified) {
-            return $user;
+            return null;
         }
 
         $user->id = $decoded->user_id;

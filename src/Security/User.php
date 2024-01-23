@@ -46,9 +46,11 @@ class User implements UserInterface, JsonSerializable
 
         $user->id = $decoded->user_id;
         $user->email = $decoded->email;
-        $user->name = $decoded->name;
-        $user->initials = User::computeInitials($decoded->name);
-        $user->avatar = $decoded->picture;
+        if(!empty($decoded->name)) {
+            $user->name = $decoded->name;
+            $user->initials = User::computeInitials($decoded->name);
+        }
+        $user->avatar = $decoded->picture ?? null;
 
         return $user;
     }

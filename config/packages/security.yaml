@@ -6,4 +6,4 @@ security:
         - App\Security\Authenticator
   access_control:
     - { path: /validate$, roles: "PUBLIC_ACCESS" }
-    - { path: .*, roles: "ROLE_AUTHENTICATED" }
+    - { path: /partner, roles: "ROLE_AUTHENTICATED" }

@@ -16,6 +16,10 @@ class Authenticator extends AbstractAuthenticator
 {
     public function supports(Request $request): ?bool
     {
+        $uri = $_SERVER['REQUEST_URI'];
+        if($uri === "/api-key/validate") {
+            return false;
+        }
         return !empty($request->headers->get('x-api-key'));
     }
 

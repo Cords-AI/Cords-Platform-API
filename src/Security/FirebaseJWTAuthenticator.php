@@ -12,7 +12,7 @@ use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
 
-class Authenticator extends AbstractAuthenticator
+class FirebaseJWTAuthenticator extends AbstractAuthenticator
 {
     public function supports(Request $request): ?bool
     {
@@ -27,7 +27,7 @@ class Authenticator extends AbstractAuthenticator
     {
         $token = $request->headers->get('x-api-key');
 
-        $user = User::create($token);
+        $user = User::create($token, "https://www.googleapis.com/service_accounts/v1/metadata/x509/securetoken@system.gserviceaccount.com");
 
         $passport = new SelfValidatingPassport(new UserBadge("", function () use ($user) {
             return $user;

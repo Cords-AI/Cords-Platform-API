@@ -13,17 +13,18 @@ class User implements UserInterface, JsonSerializable
 
     private string $email;
 
+    private bool $emailVerified = false;
+
     private string $name;
 
     private string $initials;
 
     private ?string $avatar;
 
-    public static function create($token): ?User
+    public static function create($token, $keyUrl = "https://www.googleapis.com/identitytoolkit/v3/relyingparty/publicKeys"): ?User
     {
         $user = new User();
 
-        $keyUrl = "https://www.googleapis.com/service_accounts/v1/metadata/x509/securetoken@system.gserviceaccount.com";
         $keys = json_decode(file_get_contents($keyUrl), true);
 
         $decoded = null;
@@ -40,8 +41,8 @@ class User implements UserInterface, JsonSerializable
             return null;
         }
 
-        if(!$decoded->email_verified) {
-            return null;
+        if($decoded->email_verified) {
+            $user->emailVerified = true;
         }
 
         $user->id = $decoded->user_id;
@@ -49,6 +50,8 @@ class User implements UserInterface, JsonSerializable
         if(!empty($decoded->name)) {
             $user->name = $decoded->name;
             $user->initials = User::computeInitials($decoded->name);
+        } else {
+            $user->initials = strtoupper(substr($decoded->email, 0, 1));
         }
         $user->avatar = $decoded->picture ?? null;
 
@@ -69,6 +72,9 @@ class User implements UserInterface, JsonSerializable
         if(!empty($this->id)) {
             $roles[] = "ROLE_AUTHENTICATED";
         }
+        if($this->emailVerified) {
+            $roles[] = "ROLE_VERIFIED";
+        }
         return $roles;
     }
 
@@ -86,9 +92,10 @@ class User implements UserInterface, JsonSerializable
         return [
             "id" => $this->id,
             "email" => $this->email,
-            "name" => $this->name,
-            "initials" => $this->initials,
-            "avatar" => $this->avatar
+            "name" => $this->name ?? "",
+            "initials" => $this->initials ?? "",
+            "avatar" => $this->avatar,
+            "emailVerified" => $this->emailVerified
         ];
     }
 }

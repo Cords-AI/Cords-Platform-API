@@ -15,6 +15,7 @@ jobs:
       APP_ENV: prod
       COOKIE_DOMAIN: .cords.dev
       APP_SECRET: ${{ secrets.APP_SECRET }}
+      DATABASE_URL: mysql://root@partners_db:3306/partners?serverVersion=8.0&charset=utf8mb4
     steps:
       - uses: actions/checkout@v2
         with:

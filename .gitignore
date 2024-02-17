@@ -11,3 +11,4 @@
 .env
 docker-compose.override.yml
 /public/info.php
+.idea

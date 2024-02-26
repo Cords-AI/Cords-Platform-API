@@ -21,6 +21,8 @@ class User implements UserInterface, JsonSerializable
 
     private ?string $avatar;
 
+    private bool  $isAdmin = false;
+
     public static function create($token, $keyUrl = "https://www.googleapis.com/identitytoolkit/v3/relyingparty/publicKeys"): ?User
     {
         $user = new User();
@@ -54,6 +56,10 @@ class User implements UserInterface, JsonSerializable
             $user->initials = strtoupper(substr($decoded->email, 0, 1));
         }
         $user->avatar = $decoded->picture ?? null;
+
+        if(!empty($decoded->admin)) {
+            $user->isAdmin = $decoded->admin;
+        }
 
         return $user;
     }
@@ -95,7 +101,8 @@ class User implements UserInterface, JsonSerializable
             "name" => $this->name ?? "",
             "initials" => $this->initials ?? "",
             "avatar" => $this->avatar,
-            "emailVerified" => $this->emailVerified
+            "emailVerified" => $this->emailVerified,
+            "isAdmin" => $this->isAdmin
         ];
     }
 }

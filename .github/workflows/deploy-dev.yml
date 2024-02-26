@@ -16,7 +16,7 @@ jobs:
       COOKIE_DOMAIN: .cords.dev
       APP_SECRET: ${{ secrets.APP_SECRET }}
       DATABASE_URL: mysql://root@partners_db:3306/partners?serverVersion=8.0&charset=utf8mb4
-      CORS_ALLOW_ORIGIN: *.cords.dev
+      CORS_ALLOW_ORIGIN: .*.cords.dev
     steps:
       - uses: actions/checkout@v2
         with:

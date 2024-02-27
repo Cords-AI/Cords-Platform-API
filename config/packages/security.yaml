@@ -10,3 +10,4 @@ security:
     - { path: /validate$, roles: "PUBLIC_ACCESS" }
     - { path: /partner, roles: "ROLE_AUTHENTICATED" }
     - { path: /authenticated, roles: "ROLE_AUTHENTICATED" }
+    - { path: /admin, roles: "ROLE_ADMIN" }

@@ -21,15 +21,18 @@ class FirebaseCookieAuthenticator extends AbstractAuthenticator
 
     public function authenticate(Request $request): Passport
     {
+        $user = null;
+
         $cookie = $request->headers->get('cookie');
         $cookies = explode(";", $cookie);
         $cookies = array_map(fn($cookie) => trim($cookie), $cookies);
         $cookies = array_map(fn($cookie) => explode("=", $cookie), $cookies);
         $sessions = array_filter($cookies, fn($cookie) => $cookie[0] == 'session');
         $session = current($sessions);
-        $idToken = $session[1];
-
-        $user = User::create($idToken);
+        if ($session !== false) {
+            $idToken = $session[1];
+            $user = User::create($idToken);
+        }
 
         $passport = new SelfValidatingPassport(new UserBadge("", function () use ($user) {
             return $user;

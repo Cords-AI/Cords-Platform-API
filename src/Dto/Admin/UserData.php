@@ -18,6 +18,8 @@ class UserData
 
     public bool $isAdmin;
 
+    public int $createdDate;
+
     public function __construct(stdClass $data)
     {
         $this->uid = $data->uid;
@@ -31,6 +33,8 @@ class UserData
         $this->photoURL = $data->photoURL ?? null;
     
         $this->isAdmin = $this->computeIsAdmin($data);
+
+        $this->createdDate = $this->computeCreateDate($data);
     }
 
     public function computeIsAdmin(stdClass $data): bool
@@ -41,5 +45,12 @@ class UserData
             }
         }
         return false;
+    }
+
+    private function computeCreateDate(stdClass $data): int
+    {
+        $creationTime = $data->metadata->creationTime;
+        $timestamp = strtotime($creationTime);
+        return $timestamp;
     }
 }

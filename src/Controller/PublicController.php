@@ -17,9 +17,18 @@ class PublicController extends AbstractController
         /** @var \App\Repository\ApiKeyRepository $repository */
         $repository = $em->getRepository(ApiKey::class);
         $apiKey = $request->headers->get('x-api-key');
-        $key = $repository->findOneBy(['apiKey' => $apiKey]);
 
-        if(empty($key)) {
+        $queryBuilder = $repository->createQueryBuilder("key");
+        $queryBuilder->where("key.apiKey = :apiKey")
+            ->andWhere($queryBuilder->expr()->orX(
+                $queryBuilder->expr()->neq('key.deleted', 1),
+                $queryBuilder->expr()->isNull('key.deleted')
+            ))
+            ->setParameter('apiKey', $apiKey);
+
+        $key = current($queryBuilder->getQuery()->getResult());
+
+        if (empty($key)) {
             return new JsonResponse(null, 403);
         }
 

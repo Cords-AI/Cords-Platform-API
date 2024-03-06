@@ -20,6 +20,9 @@ class ApiKey implements JsonSerializable
     #[ORM\Column(length: 255)]
     private ?string $uid = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?bool $deleted = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -49,8 +52,22 @@ class ApiKey implements JsonSerializable
         return $this;
     }
 
+    public function getDeleted(): ?bool
+    {
+        return $this->deleted;
+    }
+
+    public function setDeleted(bool $deleted): static
+    {
+        $this->deleted = $deleted;
+
+        return $this;
+    }
+
     public function jsonSerialize(): mixed {
         return [
+            "id" => $this->id,
+            "uid" => $this->uid,
             "apiKey" => $this->apiKey
         ];
     }

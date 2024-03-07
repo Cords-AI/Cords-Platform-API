@@ -18,6 +18,8 @@ class UserData
 
     public bool $isAdmin;
 
+    public ?string $status;
+
     public int $createdDate;
 
     public function __construct(stdClass $data)
@@ -32,6 +34,8 @@ class UserData
         
         $this->photoURL = $data->photoURL ?? null;
     
+        $this->status = $data->status;
+
         $this->isAdmin = $this->computeIsAdmin($data);
 
         $this->createdDate = $this->computeCreateDate($data);

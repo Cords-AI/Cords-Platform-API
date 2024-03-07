@@ -28,7 +28,9 @@ class PublicController extends AbstractController
 
         $key = current($queryBuilder->getQuery()->getResult());
 
-        if (empty($key)) {
+        $account = $key->getAccount();
+
+        if (empty($key) || $account->getStatus() !== 'approved') {
             return new JsonResponse(null, 403);
         }
 

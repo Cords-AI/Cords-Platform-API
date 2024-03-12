@@ -21,4 +21,4 @@ jobs:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
-      - run: ./tools/deploy /nvme1/docker/partners-backend
+      - run: ./tools/deploy /home/ubuntu/docker/cords-platform-api

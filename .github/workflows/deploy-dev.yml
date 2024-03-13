@@ -17,6 +17,7 @@ jobs:
       APP_SECRET: ${{ secrets.APP_SECRET }}
       DATABASE_URL: mysql://root@partners_db:3306/partners?serverVersion=8.0&charset=utf8mb4
       CORS_ALLOW_ORIGIN: .*.cords.dev
+      FIREBASE_SERVICE_URL: http://firebase-service:3000
     steps:
       - uses: actions/checkout@v2
         with:

@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Account;
 use App\Entity\ApiKey;
 use Doctrine\ORM\EntityManagerInterface;
 use FOS\RestBundle\Controller\Annotations\Delete;
@@ -18,9 +19,13 @@ class PartnerController extends AbstractController
     {
         $uid = $this->getUser()->getUserIdentifier();
 
+        $repository = $em->getRepository(Account::class);
+        $account = $repository->findOneBy(['uid' => $uid]);
+
         $key = new ApiKey();
         $key->setApiKey(bin2hex(random_bytes(16)));
         $key->setUid($uid);
+        $key->setAccount($account);
         $em->persist($key);
         $em->flush();
 

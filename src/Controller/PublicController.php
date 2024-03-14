@@ -30,10 +30,33 @@ class PublicController extends AbstractController
 
         $account = $key->getAccount();
 
-        if (empty($key) || $account->getStatus() !== 'approved') {
+        $fromValidUrl = $this->determineValidUrl($key, $request->headers->get('referer'));
+
+        if (empty($key) || $account->getStatus() !== 'approved' || !$fromValidUrl) {
             return new JsonResponse(null, 403);
         }
 
         return new JsonResponse(null, 200);
+    }
+
+    private function determineValidUrl(ApiKey $key, string $referer): bool
+    {
+        $validReferrers = array_map(fn($enabledUrl) => $enabledUrl->getUrl(), $key->getEnabledUrls()->getValues());
+
+        if (!count($validReferrers)) {
+            return true;
+        }
+
+        $url = preg_replace("#^https?://#i", "", $referer);
+        $url = rtrim($url, '/');
+        $pattern = "#(https?://)?$url/?#i";
+
+        foreach ($validReferrers as $validReferrer) {
+            if (preg_match($pattern, $validReferrer) === 1) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

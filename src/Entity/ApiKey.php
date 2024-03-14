@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\ApiKeyRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use JsonSerializable;
 
@@ -26,6 +28,14 @@ class ApiKey implements JsonSerializable
     #[ORM\ManyToOne(inversedBy: 'apiKeys')]
     #[ORM\JoinColumn(name: "uid", referencedColumnName: "uid")]
     private ?Account $account = null;
+
+    #[ORM\OneToMany(mappedBy: 'apiKey', targetEntity: EnabledUrl::class)]
+    private Collection $enabledUrls;
+
+    public function __construct()
+    {
+        $this->enabledUrls = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -84,6 +94,36 @@ class ApiKey implements JsonSerializable
     public function setAccount(?Account $account): static
     {
         $this->account = $account;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, EnabledUrl>
+     */
+    public function getEnabledUrls(): Collection
+    {
+        return $this->enabledUrls;
+    }
+
+    public function addEnabledUrl(EnabledUrl $enabledUrl): static
+    {
+        if (!$this->enabledUrls->contains($enabledUrl)) {
+            $this->enabledUrls->add($enabledUrl);
+            $enabledUrl->setApiKey($this);
+        }
+
+        return $this;
+    }
+
+    public function removeEnabledUrl(EnabledUrl $enabledUrl): static
+    {
+        if ($this->enabledUrls->removeElement($enabledUrl)) {
+            // set the owning side to null (unless already changed)
+            if ($enabledUrl->getApiKey() === $this) {
+                $enabledUrl->setApiKey(null);
+            }
+        }
 
         return $this;
     }

@@ -5,9 +5,11 @@ security:
       custom_authenticators:
         - App\Security\FirebaseJWTAuthenticator
         - App\Security\FirebaseCookieAuthenticator
+        - App\Security\SystemAuthenticator
   access_control:
     - { path: /public$, roles: "PUBLIC_ACCESS" }
     - { path: /validate$, roles: "PUBLIC_ACCESS" }
     - { path: /partner, roles: "ROLE_AUTHENTICATED" }
     - { path: /authenticated, roles: "ROLE_AUTHENTICATED" }
     - { path: /admin, roles: "ROLE_ADMIN" }
+    - { path: /system, roles: "ROLE_SYSTEM" }

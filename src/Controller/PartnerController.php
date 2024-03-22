@@ -2,9 +2,11 @@
 
 namespace App\Controller;
 
+use App\Collection\LogCollection;
 use App\Entity\Account;
 use App\Entity\ApiKey;
 use App\Entity\EnabledUrl;
+use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use FOS\RestBundle\Controller\Annotations\Delete;
 use FOS\RestBundle\Controller\Annotations\Get;
@@ -136,5 +138,51 @@ class PartnerController extends AbstractController
         $key = $repository->findOneBy(['id' => $id, 'uid' => $uid]);
 
         return new JsonResponse(["data" => $key->getEnabledUrls()->getValues()]);
+    }
+
+    #[Get('/partner/report')]
+    public function getReport(Request $request, LogCollection $logCollection): JsonResponse
+    {
+        $page = $request->get('page') ?? [];
+        $sort = $request->get('sort') ?? [];
+
+        $limit = $page['limit'] ?? null;
+        $offset = $page['offset'] ?? null;
+
+        $sortField = $sort['field'] ?? null;
+        $sortDirection = $sort['direction'] ?? null;
+
+        $province = $request->get('province') ?? '';
+        $apiKey = $request->get('apiKey') ?? '';
+        $q = $request->get('search') ?? '';
+        $startDateTimestamp = $request->get('start') ?? '';
+        $endDateTimestamp = $request->get('end') ?? '';
+
+        $startDate = null;
+        if ($startDateTimestamp) {
+            $startDate = (new DateTime())->setTimestamp($startDateTimestamp / 1000);
+        }
+
+        $endDate = null;
+        if ($endDateTimestamp) {
+            $endDate = (new DateTime())->setTimestamp($endDateTimestamp / 1000);
+        }
+
+        $uid = $this->getUser()->getUserIdentifier();
+
+        $logCollection->userUid($uid)
+            ->limitToRelatedApiKeys(true)
+            ->province($province)
+            ->apiKey($apiKey)
+            ->q($q)
+            ->startDate($startDate)
+            ->endDate($endDate)
+            ->limit($limit)
+            ->offset($offset)
+            ->sortField($sortField)
+            ->sortDirection($sortDirection)
+            ->fetchRows();
+
+        return new JsonResponse($logCollection->returnAsJSON());
     }
 }

@@ -16,6 +16,10 @@ class FirebaseCookieAuthenticator extends AbstractAuthenticator
 {
     public function supports(Request $request): ?bool
     {
+        $uri = $_SERVER['REQUEST_URI'];
+        if (str_starts_with($uri, "/system")) {
+            return false;
+        }
         return !empty($request->headers->get('cookie'));
     }
 

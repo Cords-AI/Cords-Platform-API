@@ -12,25 +12,22 @@ use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
 
-class FirebaseJWTAuthenticator extends AbstractAuthenticator
+class SystemAuthenticator extends AbstractAuthenticator
 {
     public function supports(Request $request): ?bool
     {
         $uri = $_SERVER['REQUEST_URI'];
-        if($uri === "/api-key/validate") {
-            return false;
-        }
-        if (str_starts_with($uri, "/system")) {
-            return false;
-        }
-        return !empty($request->headers->get('x-api-key'));
+        return str_starts_with($uri, "/system");
     }
 
     public function authenticate(Request $request): Passport
     {
-        $token = $request->headers->get('x-api-key');
+        $key = $request->headers->get('x-api-key');
 
-        $user = User::create($token, "https://www.googleapis.com/service_accounts/v1/metadata/x509/securetoken@system.gserviceaccount.com");
+        $user = null;
+        if (!empty($key) && $key === $_ENV['SYSTEM_TOKEN']) {
+            $user = new SystemUser();
+        }
 
         $passport = new SelfValidatingPassport(new UserBadge("", function () use ($user) {
             return $user;

@@ -11,14 +11,21 @@ class CsrfTokenListener
     {
         $request = $event->getRequest();
         $method = $request->getMethod();
+        $uri = $request->getRequestUri();
 
-        if (!in_array($method, ['GET', 'OPTIONS'])) {
-            $token = $request->headers->get('X-Csrf-Token');
-            session_start();
+        if (str_starts_with($uri, "/system")) {
+            return;
+        }
 
-            if (!$token || $token != $_SESSION['csrf_token']) {
-                throw new AccessDeniedHttpException('Invalid CSRF token');
-            }
+        if (in_array($method, ['GET', 'OPTIONS'])) {
+            return;
+        }
+
+        $token = $request->headers->get('X-Csrf-Token');
+        session_start();
+
+        if (!$token || $token != $_SESSION['csrf_token']) {
+            throw new AccessDeniedHttpException('Invalid CSRF token');
         }
     }
 }

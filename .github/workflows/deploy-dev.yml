@@ -18,8 +18,15 @@ jobs:
       DATABASE_URL: mysql://root@partners_db:3306/partners?serverVersion=8.0&charset=utf8mb4
       CORS_ALLOW_ORIGIN: .*.cords.dev
       FIREBASE_SERVICE_URL: http://firebase-service:3000
+
     steps:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
+
+      - name: Set environment variables
+        run: |
+          source ~/.secrets
+          echo "SYSTEM_TOKEN=$SYSTEM_TOKEN" >> $GITHUB_ENV
+
       - run: ./tools/deploy /home/ubuntu/docker/cords-platform-api

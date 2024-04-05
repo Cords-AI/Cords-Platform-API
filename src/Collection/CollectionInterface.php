@@ -6,6 +6,7 @@ interface CollectionInterface
 {
     public function limit($limit): static;
     public function offset($limit): static;
+    public function sort($sort): static;
     public function execute(): void;
     public function getRows(): array;
     public function getTotal(): int;

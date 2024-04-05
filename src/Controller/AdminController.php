@@ -19,10 +19,12 @@ class AdminController extends AbstractController
     {
         $limit = $request->get('limit');
         $offset = $request->get('offset');
+        $sort = $request->get('sort');
 
         $collection
             ->limit($limit)
             ->offset($offset)
+            ->sort($sort)
             ->execute();
 
         $data = array_map(fn($row) => new UserData($row), $collection->getRows());

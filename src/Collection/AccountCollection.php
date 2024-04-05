@@ -16,6 +16,10 @@ class AccountCollection implements CollectionInterface
 
     private array|null $rows = null;
 
+    private string $sort = 'created';
+
+    private bool $descending = true;
+
     public function __construct(
         private ManagerRegistry $doctrine,
         private FirebaseService $firebase
@@ -35,6 +39,20 @@ class AccountCollection implements CollectionInterface
     {
         if ($offset) {
             $this->offset = $offset;
+        }
+        return $this;
+    }
+
+    public function sort($sort): static
+    {
+        if ($sort) {
+            if (strpos($sort, '-') === 0) {
+                $this->descending = true;
+                $sort = substr($sort, 1);
+            } else {
+                $this->descending = false;
+            }
+            $this->sort = $sort;
         }
         return $this;
     }
@@ -59,6 +77,10 @@ class AccountCollection implements CollectionInterface
         }
 
         $rows = array_filter($rows, fn($row) => $row->emailVerified);
+        array_walk($rows, fn($row) => $row->created = strtotime($row->metadata->creationTime));
+
+        $order = array_map(fn($row) => $row->{$this->sort}, $rows);
+        array_multisort($order, $this->descending ? SORT_DESC : SORT_ASC, $rows);
 
         $this->total = count($rows);
 

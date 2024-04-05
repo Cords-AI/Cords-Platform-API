@@ -8,6 +8,8 @@ use Doctrine\Persistence\ManagerRegistry;
 
 class AccountCollection implements CollectionInterface
 {
+    private string $search = '';
+
     private int $limit = 25;
 
     private int $offset = 0;
@@ -23,8 +25,15 @@ class AccountCollection implements CollectionInterface
     public function __construct(
         private ManagerRegistry $doctrine,
         private FirebaseService $firebase
-    )
+    ) {
+    }
+
+    public function search($search): static
     {
+        if ($search) {
+            $this->search = $search;
+        }
+        return $this;
     }
 
     public function limit($limit): static
@@ -78,6 +87,10 @@ class AccountCollection implements CollectionInterface
 
         $rows = array_filter($rows, fn($row) => $row->emailVerified);
         array_walk($rows, fn($row) => $row->created = strtotime($row->metadata->creationTime));
+
+        if ($this->search) {
+            $rows = array_filter($rows, fn($row) => strpos($row->email, $this->search) !== false);
+        }
 
         $order = array_map(fn($row) => $row->{$this->sort}, $rows);
         array_multisort($order, $this->descending ? SORT_DESC : SORT_ASC, $rows);

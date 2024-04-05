@@ -4,6 +4,7 @@ namespace App\Collection;
 
 interface CollectionInterface
 {
+    public function search($search): static;
     public function limit($limit): static;
     public function offset($limit): static;
     public function sort($sort): static;

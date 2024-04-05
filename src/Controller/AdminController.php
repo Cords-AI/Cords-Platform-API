@@ -2,9 +2,9 @@
 
 namespace App\Controller;
 
+use App\Collection\AccountCollection;
 use App\Dto\Admin\UserData;
 use App\Entity\Account;
-use App\Service\FirebaseService;
 use Doctrine\Persistence\ManagerRegistry;
 use FOS\RestBundle\Controller\Annotations\Get;
 use FOS\RestBundle\Controller\Annotations\Post;
@@ -15,28 +15,23 @@ use Symfony\Component\HttpFoundation\Request;
 class AdminController extends AbstractController
 {
     #[Get('/admin/users')]
-    public function user(FirebaseService $firebase, ManagerRegistry $doctrine): JsonResponse
+    public function user(Request $request, AccountCollection $collection): JsonResponse
     {
-        $em = $doctrine->getManager();
-        /** @var \App\Repository\AccountRepository $repository */
-        $repository = $em->getRepository(Account::class);
-        $accounts = $repository->findAll();
+        $limit = $request->get('limit');
+        $offset = $request->get('offset');
 
-        $rows = $firebase->getUsers();
+        $collection
+            ->limit($limit)
+            ->offset($offset)
+            ->execute();
 
-        $correspondingAccounts = [];
+        $data = array_map(fn($row) => new UserData($row), $collection->getRows());
 
-        array_map(function ($account) use (&$correspondingAccounts) {
-            $correspondingAccounts[$account->getUid()] = $account->getStatus();
-        }, $accounts);
-
-        foreach ($rows as $row) {
-            $row->status = $correspondingAccounts[$row->uid];
-        }
-
-        $data = array_map(fn($row) => new UserData($row), $rows);
-        $data = array_filter($data, fn(UserData $userData) => $userData->emailVerified);
         return new JsonResponse([
+            "meta" => [
+                "total" => $collection->getTotal(),
+                "page" => $collection->getPage()
+            ],
             "data" => $data
         ]);
     }

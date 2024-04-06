@@ -10,6 +10,8 @@ class AccountCollection implements CollectionInterface
 {
     private string $search = '';
 
+    private array|null $filters = null;
+
     private int $limit = 25;
 
     private int $offset = 0;
@@ -26,6 +28,14 @@ class AccountCollection implements CollectionInterface
         private ManagerRegistry $doctrine,
         private FirebaseService $firebase
     ) {
+    }
+
+    public function filters($filters): static
+    {
+        if ($filters) {
+            $this->filters = $filters;
+        }
+        return $this;
     }
 
     public function search($search): static
@@ -86,10 +96,21 @@ class AccountCollection implements CollectionInterface
         }
 
         $rows = array_filter($rows, fn($row) => $row->emailVerified);
-        array_walk($rows, fn($row) => $row->created = strtotime($row->metadata->creationTime));
+        array_walk($rows, function ($row) {
+            $row->created = strtotime($row->metadata->creationTime);
+            if (!$row->status) {
+                $row->status = 'pending';
+            }
+        });
 
         if ($this->search) {
             $rows = array_filter($rows, fn($row) => strpos($row->email, $this->search) !== false);
+        }
+
+        if (isset($this->filters['status'])) {
+            $rows = array_filter($rows, function ($row) {
+                return in_array($row->status, $this->filters['status']);
+            });
         }
 
         $order = array_map(fn($row) => $row->{$this->sort}, $rows);

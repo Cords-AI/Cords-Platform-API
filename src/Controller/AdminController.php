@@ -18,6 +18,7 @@ class AdminController extends AbstractController
     public function user(Request $request, AccountCollection $collection): JsonResponse
     {
         $collection
+            ->filters($request->get('filters'))
             ->search($request->get('search'))
             ->limit($request->get('limit'))
             ->offset($request->get('offset'))

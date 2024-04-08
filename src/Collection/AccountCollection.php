@@ -14,7 +14,7 @@ class AccountCollection implements CollectionInterface
 
     private int $limit = 25;
 
-    private int $offset = 0;
+    private int $page = 1;
 
     private int|null $total = null;
 
@@ -54,10 +54,10 @@ class AccountCollection implements CollectionInterface
         return $this;
     }
 
-    public function offset($offset): static
+    public function page($page): static
     {
-        if ($offset) {
-            $this->offset = $offset;
+        if ($page) {
+            $this->page = $page;
         }
         return $this;
     }
@@ -89,7 +89,7 @@ class AccountCollection implements CollectionInterface
         }, $accounts);
 
         foreach ($rows as $row) {
-            $row->status = $correspondingAccounts[$row->uid];
+            $row->status = $correspondingAccounts[$row->uid] ?? null;
         }
 
         $rows = array_filter($rows, fn($row) => $row->emailVerified);
@@ -128,7 +128,8 @@ class AccountCollection implements CollectionInterface
 
         $this->total = count($rows);
 
-        $this->rows = array_splice($rows, $this->offset, $this->limit);
+        $offset = $this->limit * ($this->page - 1);
+        $this->rows = array_slice($rows, $offset, $this->limit);
     }
 
     public function getTotal(): int
@@ -138,7 +139,8 @@ class AccountCollection implements CollectionInterface
 
     public function getPage(): int
     {
-        return (($this->offset / $this->limit) ?? 0) + 1;
+        $offset = $this->limit * ($this->page - 1);
+        return (($offset / $this->limit) ?? 0) + 1;
     }
 
     public function getRows(): array

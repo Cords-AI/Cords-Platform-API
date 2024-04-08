@@ -21,7 +21,7 @@ class AdminController extends AbstractController
             ->filters($request->get('filters'))
             ->search($request->get('search'))
             ->limit($request->get('limit'))
-            ->offset($request->get('offset'))
+            ->page($request->get('page'))
             ->sort($request->get('sort-by'), $request->get('descending'))
             ->execute();
 

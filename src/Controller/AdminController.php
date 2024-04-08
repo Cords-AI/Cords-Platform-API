@@ -22,7 +22,7 @@ class AdminController extends AbstractController
             ->search($request->get('search'))
             ->limit($request->get('limit'))
             ->offset($request->get('offset'))
-            ->sort($request->get('sort'))
+            ->sort($request->get('sort-by'), $request->get('descending'))
             ->execute();
 
         $data = array_map(fn($row) => new UserData($row), $collection->getRows());

@@ -33,7 +33,7 @@ class AccountCollection implements CollectionInterface
     public function filters($filters): static
     {
         if ($filters) {
-            $this->filters = $filters;
+            $this->filters = array_map(fn($row) => explode(",", $row), $filters);
         }
         return $this;
     }
@@ -62,16 +62,13 @@ class AccountCollection implements CollectionInterface
         return $this;
     }
 
-    public function sort($sort): static
+    public function sort($sort, $descending): static
     {
         if ($sort) {
-            if (strpos($sort, '-') === 0) {
-                $this->descending = true;
-                $sort = substr($sort, 1);
-            } else {
-                $this->descending = false;
-            }
             $this->sort = $sort;
+        }
+        if ($descending !== null) {
+            $this->descending = $descending === 'true';
         }
         return $this;
     }
@@ -107,7 +104,20 @@ class AccountCollection implements CollectionInterface
             $rows = array_filter($rows, fn($row) => strpos($row->email, $this->search) !== false);
         }
 
-        if (isset($this->filters['status'])) {
+        if (!empty($this->filters['email'])) {
+            $email = array_shift($this->filters['email']);
+            $rows = array_filter($rows, fn($row) => strpos($row->email, $email) !== false);
+        }
+
+        if (!empty($this->filters['admin'])) {
+            $filter = array_map(fn($row) => $row === "yes", $this->filters['admin']);
+            $rows = array_filter($rows, function ($row) use ($filter) {
+                $isAdmin = !empty($row->customClaims->admin) ? $row->customClaims->admin : false;
+                return in_array($isAdmin, $filter);
+            });
+        }
+
+        if (!empty($this->filters['status'])) {
             $rows = array_filter($rows, function ($row) {
                 return in_array($row->status, $this->filters['status']);
             });

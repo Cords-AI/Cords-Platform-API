@@ -6,7 +6,7 @@ on:
       - release/dev
 
 jobs:
-  Deploy-Dev:
+  Deploy:
     runs-on: backend-dev 
     env:
       ROUTERNAME: cords-partners-backend

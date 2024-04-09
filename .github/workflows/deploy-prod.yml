@@ -6,7 +6,7 @@ on:
       - release/prod
 
 jobs:
-  Deploy-Dev:
+  Deploy:
     runs-on: backend-prod
     env:
       ROUTERNAME: cords-partners-backend
@@ -15,13 +15,13 @@ jobs:
       APP_ENV: prod
       COOKIE_DOMAIN: .cords.ai
       APP_SECRET: ${{ secrets.APP_SECRET }}
+      CORS_ALLOW_ORIGIN: .*.cords.ai
+      FIREBASE_SERVICE_URL: http://firebase-service:3000
+      DATABASE_URL: mysql://root@partners_db:3306/partners?serverVersion=8.0&charset=utf8mb4
+      SENTRY_DSN: https://24ddf8367cdabdf6efa403dce1dfa187@o4504168857927680.ingest.us.sentry.io/4507124314734592
     steps:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
-      - name: Set DATABASE_URL
-        run: |
-          source ~/.secrets
-          echo "DATABASE_URL=mysql://root:$MYSQL_PASSWORD@mysql_db:3306/partners?serverVersion=8.0&charset=utf8mb4" >> $GITHUB_ENV
       - run: |
           ./tools/deploy /nvme1/docker/partners-backend

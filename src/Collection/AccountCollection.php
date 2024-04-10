@@ -4,6 +4,7 @@ namespace App\Collection;
 
 use App\Entity\Account;
 use App\Service\FirebaseService;
+use DateTime;
 use Doctrine\Persistence\ManagerRegistry;
 
 class AccountCollection implements CollectionInterface
@@ -120,6 +121,25 @@ class AccountCollection implements CollectionInterface
         if (!empty($this->filters['status'])) {
             $rows = array_filter($rows, function ($row) {
                 return in_array($row->status, $this->filters['status']);
+            });
+        }
+
+
+        if (!empty($this->filters['dates'])) {
+            $dateRange = urldecode(current($this->filters['dates']));
+            $timestamps = explode("|", $dateRange);
+
+            $startDate = (new DateTime())->setTimestamp($timestamps[0] / 1000);
+            $startDate->setTime(0, 0, 0);
+
+            $endDate = (new DateTime())->setTimestamp($timestamps[1] / 1000);
+            $endDate->setTime(23, 59, 59);
+
+            $rows = array_filter($rows, function ($row) use ($startDate, $endDate) {
+                $accountCreatedDate = (new DateTime())->setTimestamp($row->created);
+                if ($accountCreatedDate >= $startDate && $accountCreatedDate <= $endDate) {
+                    return $row;
+                }
             });
         }
 

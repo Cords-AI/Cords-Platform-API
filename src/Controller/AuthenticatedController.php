@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Dto\Authenticated\FilterData;
 use App\Entity\Filter;
+use App\Repository\AccountRepository;
 use App\Repository\FilterRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use FOS\RestBundle\Controller\Annotations\Delete;
@@ -16,9 +17,13 @@ use Symfony\Component\HttpFoundation\Request;
 class AuthenticatedController extends AbstractController
 {
     #[Get('/authenticated/user')]
-    public function user(): JsonResponse
+    public function user(AccountRepository $repository): JsonResponse
     {
         $user = $this->getUser();
+        $account = $repository->findOneBy(['uid' => $user->getUserIdentifier()]);
+        if ($account) {
+            $user->setStatus($account->getStatus());
+        }
         return new JsonResponse(["data" => $user]);
     }
 

@@ -2,7 +2,6 @@
 
 namespace App\Service;
 
-use stdClass;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class FirebaseService
@@ -11,8 +10,7 @@ class FirebaseService
 
     public function __construct(
         private HttpClientInterface $client,
-    )
-    {
+    ) {
         $this->baseUrl = $_ENV['FIREBASE_SERVICE_URL'];
     }
 

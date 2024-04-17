@@ -4,8 +4,9 @@ namespace App\Controller;
 
 use App\Collection\AccountCollection;
 use App\Dto\Admin\UserData;
-use App\Entity\Account;
-use Doctrine\Persistence\ManagerRegistry;
+use App\Repository\AccountRepository;
+use App\RequestParams\StatusParams;
+use Doctrine\ORM\EntityManagerInterface;
 use FOS\RestBundle\Controller\Annotations\Get;
 use FOS\RestBundle\Controller\Annotations\Post;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -37,18 +38,14 @@ class AdminController extends AbstractController
     }
 
     #[Post('/admin/status')]
-    public function status(Request $request, ManagerRegistry $doctrine): JsonResponse
-    {
-        $body = json_decode($request->getContent());
-        $status = $body->status;
-        $uid = $body->uid;
+    public function status(
+        StatusParams $params,
+        AccountRepository $repository,
+        EntityManagerInterface $em
+    ): JsonResponse {
 
-        $em = $doctrine->getManager();
-        /** @var \App\Repository\AccountRepository $repository */
-        $repository = $em->getRepository(Account::class);
-
-        $account = $repository->findOneBy(['uid' => $uid]);
-        $account->setStatus($status);
+        $account = $repository->findOneBy(['uid' => $params->uid]);
+        $account->setStatus($params->status);
         $em->persist($account);
         $em->flush();
 

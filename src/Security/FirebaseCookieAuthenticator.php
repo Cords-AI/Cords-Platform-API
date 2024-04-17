@@ -4,8 +4,8 @@ namespace App\Security;
 
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Http\Authenticator\AbstractAuthenticator;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
@@ -29,9 +29,9 @@ class FirebaseCookieAuthenticator extends AbstractAuthenticator
 
         $cookie = $request->headers->get('cookie');
         $cookies = explode(";", $cookie);
-        $cookies = array_map(fn($cookie) => trim($cookie), $cookies);
-        $cookies = array_map(fn($cookie) => explode("=", $cookie), $cookies);
-        $sessions = array_filter($cookies, fn($cookie) => $cookie[0] == 'session');
+        $cookies = array_map(fn ($cookie) => trim($cookie), $cookies);
+        $cookies = array_map(fn ($cookie) => explode("=", $cookie), $cookies);
+        $sessions = array_filter($cookies, fn ($cookie) => $cookie[0] == 'session');
         $session = current($sessions);
         if ($session !== false) {
             $idToken = $session[1];

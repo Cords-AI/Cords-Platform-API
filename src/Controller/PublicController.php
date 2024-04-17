@@ -41,7 +41,7 @@ class PublicController extends AbstractController
 
     private function determineValidUrl(ApiKey $key, string $referer): bool
     {
-        $validReferrers = array_map(fn($enabledUrl) => $enabledUrl->getUrl(), $key->getEnabledUrls()->getValues());
+        $validReferrers = array_map(fn ($enabledUrl) => $enabledUrl->getUrl(), $key->getEnabledUrls()->getValues());
 
         if (!count($validReferrers)) {
             return true;

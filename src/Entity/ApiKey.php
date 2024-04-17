@@ -78,7 +78,8 @@ class ApiKey implements JsonSerializable
         return $this;
     }
 
-    public function jsonSerialize(): mixed {
+    public function jsonSerialize(): mixed
+    {
         return [
             "id" => $this->id,
             "uid" => $this->uid,

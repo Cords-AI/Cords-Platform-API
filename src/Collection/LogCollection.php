@@ -128,6 +128,6 @@ class LogCollection extends AbstractCollection
         $em = $this->doctrine->getManager();
         $apiKeyRepository = $em->getRepository(ApiKey::class);
         $apiKeys = $apiKeyRepository->findBy(['uid' => $this->userUid]);
-        return array_map(fn($apiKey) => $apiKey->getApiKey(), $apiKeys);
+        return array_map(fn ($apiKey) => $apiKey->getApiKey(), $apiKeys);
     }
 }

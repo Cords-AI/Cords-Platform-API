@@ -2,9 +2,8 @@
 
 namespace App\Collection;
 
-use Doctrine\Persistence\ManagerRegistry;
-
 use Doctrine\ORM\QueryBuilder;
+use Doctrine\Persistence\ManagerRegistry;
 
 abstract class AbstractCollection
 {

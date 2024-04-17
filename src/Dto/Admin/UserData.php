@@ -25,15 +25,15 @@ class UserData
     public function __construct(stdClass $data)
     {
         $this->uid = $data->uid;
-        
+
         $this->email = $data->email;
 
         $this->emailVerified = $data->emailVerified;
 
         $this->displayName = $data->displayName ?? null;
-        
+
         $this->photoURL = $data->photoURL ?? null;
-    
+
         $this->status = $data->status;
 
         $this->isAdmin = $this->computeIsAdmin($data);

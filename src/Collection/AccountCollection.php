@@ -34,7 +34,7 @@ class AccountCollection implements CollectionInterface
     public function filters($filters): static
     {
         if ($filters) {
-            $this->filters = array_map(fn($row) => explode(",", $row), $filters);
+            $this->filters = array_map(fn ($row) => explode(",", $row), $filters);
         }
         return $this;
     }
@@ -93,7 +93,7 @@ class AccountCollection implements CollectionInterface
             $row->status = $correspondingAccounts[$row->uid] ?? null;
         }
 
-        $rows = array_filter($rows, fn($row) => $row->emailVerified);
+        $rows = array_filter($rows, fn ($row) => $row->emailVerified);
         array_walk($rows, function ($row) {
             $row->created = strtotime($row->metadata->creationTime);
             if (!$row->status) {
@@ -102,16 +102,16 @@ class AccountCollection implements CollectionInterface
         });
 
         if ($this->search) {
-            $rows = array_filter($rows, fn($row) => strpos($row->email, $this->search) !== false);
+            $rows = array_filter($rows, fn ($row) => strpos($row->email, $this->search) !== false);
         }
 
         if (!empty($this->filters['email'])) {
             $email = array_shift($this->filters['email']);
-            $rows = array_filter($rows, fn($row) => strpos($row->email, $email) !== false);
+            $rows = array_filter($rows, fn ($row) => strpos($row->email, $email) !== false);
         }
 
         if (!empty($this->filters['admin'])) {
-            $filter = array_map(fn($row) => $row === "yes", $this->filters['admin']);
+            $filter = array_map(fn ($row) => $row === "yes", $this->filters['admin']);
             $rows = array_filter($rows, function ($row) use ($filter) {
                 $isAdmin = !empty($row->customClaims->admin) ? $row->customClaims->admin : false;
                 return in_array($isAdmin, $filter);
@@ -143,7 +143,7 @@ class AccountCollection implements CollectionInterface
             });
         }
 
-        $order = array_map(fn($row) => $row->{$this->sort}, $rows);
+        $order = array_map(fn ($row) => $row->{$this->sort}, $rows);
         array_multisort($order, $this->descending ? SORT_DESC : SORT_ASC, $rows);
 
         $this->total = count($rows);

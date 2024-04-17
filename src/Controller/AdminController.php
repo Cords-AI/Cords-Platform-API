@@ -26,7 +26,7 @@ class AdminController extends AbstractController
             ->sort($request->get('sort-by'), $request->get('descending'))
             ->execute();
 
-        $data = array_map(fn($row) => new UserData($row), $collection->getRows());
+        $data = array_map(fn ($row) => new UserData($row), $collection->getRows());
 
         return new JsonResponse([
             "meta" => [

@@ -3,10 +3,8 @@
 namespace App\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 
 class CsrfTokenController extends AbstractController
 {
@@ -15,12 +13,12 @@ class CsrfTokenController extends AbstractController
     {
         session_start();
 
-        if(!isset($_SESSION['csrf_token'])) {
+        if (!isset($_SESSION['csrf_token'])) {
             $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
         }
 
         return $this->json([
             'csrf-token' => $_SESSION['csrf_token']
-        ]); 
+        ]);
     }
 }

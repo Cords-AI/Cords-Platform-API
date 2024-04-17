@@ -143,44 +143,19 @@ class PartnerController extends AbstractController
     #[Get('/partner/report')]
     public function getReport(Request $request, LogCollection $logCollection): JsonResponse
     {
-        $page = $request->get('page') ?? [];
-        $sort = $request->get('sort') ?? [];
+        $filters = $request->get('filters');
 
-        $limit = $page['limit'] ?? null;
-        $offset = $page['offset'] ?? null;
-
-        $sortField = $sort['field'] ?? null;
-        $sortDirection = $sort['direction'] ?? null;
-
-        $province = $request->get('province') ?? '';
-        $apiKey = $request->get('apiKey') ?? '';
-        $q = $request->get('search') ?? '';
-        $startDateTimestamp = $request->get('start') ?? '';
-        $endDateTimestamp = $request->get('end') ?? '';
-
-        $startDate = null;
-        if ($startDateTimestamp) {
-            $startDate = (new DateTime())->setTimestamp($startDateTimestamp / 1000);
-        }
-
-        $endDate = null;
-        if ($endDateTimestamp) {
-            $endDate = (new DateTime())->setTimestamp($endDateTimestamp / 1000);
-        }
+        $page = $request->get('page');
+        $search = $request->get('search');
 
         $uid = $this->getUser()->getUserIdentifier();
 
         $logCollection->userUid($uid)
             ->limitToRelatedApiKeys(true)
-            ->province($province)
-            ->apiKey($apiKey)
-            ->q($q)
-            ->startDate($startDate)
-            ->endDate($endDate)
-            ->limit($limit)
-            ->offset($offset)
-            ->sortField($sortField)
-            ->sortDirection($sortDirection)
+            ->filters($filters)
+            ->page($page)
+            ->search($search)
+            ->sort($request->get('sort-by'), $request->get('descending'))
             ->fetchRows();
 
         return new JsonResponse($logCollection->returnAsJSON());

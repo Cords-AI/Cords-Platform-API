@@ -13,13 +13,37 @@ class LogCollection extends AbstractCollection
 
     private bool $limitToRelatedApiKeys = false;
 
-    private ?string $province = '';
+    protected int $limit = 25;
 
-    private ?string $apiKey = '';
+    private array $filters = [];
 
-    private ?DateTime $startDate = null;
+    private function getOffset(): int {
+        return ($this->page - 1) * $this->limit;
+    }
 
-    private ?DateTime $endDate = null;
+    public function page(?int $page): self
+    {
+        if ($page) {
+            $this->page = $page;
+        }
+        return $this;
+    }
+
+    public function filters(?array $filters): self
+    {
+        if ($filters) {
+            $this->filters = $filters;
+        }
+        return $this;
+    }
+
+    public function search($search): static
+    {
+        if ($search) {
+            $this->search = $search;
+        }
+        return $this;
+    }
 
     public function userUid($userUid): self
     {
@@ -37,40 +61,6 @@ class LogCollection extends AbstractCollection
         return $this;
     }
 
-    public function province($province): self
-    {
-        if ($province) {
-            $this->province = $province;
-        }
-        return $this;
-    }
-
-    public function apiKey($apiKey): self
-    {
-        if ($apiKey) {
-            $this->apiKey = $apiKey;
-        }
-        return $this;
-    }
-
-    public function startDate(?DateTime $startDate): self
-    {
-        if ($startDate) {
-            $this->startDate = $startDate;
-            $this->startDate->setTime(0, 0, 0);
-        }
-        return $this;
-    }
-
-    public function endDate(?DateTime $endDate): self
-    {
-        if ($endDate) {
-            $this->endDate = $endDate;
-            $this->endDate->setTime(23, 59, 59);
-        }
-        return $this;
-    }
-
     public function fetchRows(): array
     {
         $this->qb->select('log')
@@ -81,36 +71,57 @@ class LogCollection extends AbstractCollection
             $this->qb->where($this->qb->expr()->in('log.apiKey', $relatedApiKeys));
         }
 
-        if ($this->province) {
-            $this->qb->andWhere("log.province = '$this->province'");
+        if (!empty($this->filters['province'])) {
+            $province = $this->filters['province'];
+            $this->qb->andWhere("log.province = '$province'");
         }
 
-        if ($this->apiKey) {
-            $this->qb->andWhere("log.apiKey = '$this->apiKey'");
+        if (!empty($this->filters['api-key'])) {
+            $apiKeyMatch = $this->filters['api-key'];
+            $apiKeyMatch = "%$apiKeyMatch%";
+            $this->qb->andWhere('log.apiKey LIKE :apiKeyMatch')
+                ->setParameter('apiKeyMatch', $apiKeyMatch);
         }
 
-        if ($this->q) {
-            $searchTerm = "%$this->q%";
-            $this->qb->andWhere('log.searchString LIKE :searchTerm')
-                ->setParameter('searchTerm', $searchTerm);
+        if (!empty($this->filters['search-term'])) {
+            $searchString = $this->filters['search-term'];
+            $searchString = "%$searchString%";
+            $this->qb->andWhere('log.searchString LIKE :searchString')
+                ->setParameter('searchString', $searchString);
         }
 
-        if ($this->startDate) {
+        if (!empty($this->search)) {
+            $search = $this->search;
+            $search = "%$search%";
+            $this->qb->andWhere('log.searchString LIKE :search')
+                ->setParameter('search', $search);
+        }
+
+        if (!empty($this->filters['dates'])) {
+            $dateRange = urldecode($this->filters['dates']);
+            $timestamps = explode("|", $dateRange);
+
+            $startDate = (new DateTime())->setTimestamp($timestamps[0] / 1000);
+            $startDate->setTime(0, 0, 0);
+
+            $endDate = (new DateTime())->setTimestamp($timestamps[1] / 1000);
+            $endDate->setTime(23, 59, 59);
+
             $this->qb->andWhere('log.createdDate >= :startDate')
-                ->setParameter('startDate', $this->startDate);
-        }
+                ->setParameter('startDate', $startDate);
 
-        if ($this->endDate) {
             $this->qb->andWhere('log.createdDate <= :endDate')
-                ->setParameter('endDate', $this->endDate);
+                ->setParameter('endDate', $endDate);
         }
 
-        $this->qb->orderBy("log.$this->sortField", $this->sortDirection);
+        $direction = $this->descending ? 'DESC' : 'ASC';
+
+        $this->qb->orderBy("TRIM(log.$this->sort)", $direction);
 
         // paginate
         $query = $this->qb->getQuery();
         $query->setMaxResults($this->limit);
-        $query->setFirstResult($this->offset);
+        $query->setFirstResult($this->getOffset());
         $paginator = new Paginator($query);
         $this->total = count($paginator);
         $rows = [];

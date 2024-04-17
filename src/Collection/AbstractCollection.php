@@ -13,17 +13,17 @@ abstract class AbstractCollection
 
     protected int $limit = 1000000;
 
-    protected int $offset = 0;
-
-    protected string $sortField = 'createdDate';
-
-    protected string $sortDirection = 'ASC';
-
     protected int $total = 0;
 
-    protected ?string $q = '';
-
     protected QueryBuilder $qb;
+
+    protected int $page = 1;
+
+    protected string $sort = 'createdDate';
+
+    protected bool $descending = true;
+
+    protected string $search = '';
 
     public function __construct(ManagerRegistry $doctrine)
     {
@@ -34,14 +34,6 @@ abstract class AbstractCollection
         $this->qb = $em->createQueryBuilder();
     }
 
-    public function q($q): self
-    {
-        if ($q) {
-            $this->q = $q;
-        }
-        return $this;
-    }
-
     public function limit($limit): self
     {
         if ($limit) {
@@ -50,26 +42,13 @@ abstract class AbstractCollection
         return $this;
     }
 
-    public function offset($offset): self
+    public function sort($sort, $descending): static
     {
-        if ($offset) {
-            $this->offset = $offset;
+        if ($sort) {
+            $this->sort = $sort;
         }
-        return $this;
-    }
-
-    public function sortField($sortField): self
-    {
-        if ($sortField) {
-            $this->sortField = $sortField;
-        }
-        return $this;
-    }
-
-    public function sortDirection($sortDirection): self
-    {
-        if ($sortDirection) {
-            $this->sortDirection = $sortDirection;
+        if ($descending !== null) {
+            $this->descending = $descending === 'true';
         }
         return $this;
     }
@@ -80,7 +59,8 @@ abstract class AbstractCollection
     {
         return [
             'meta' => [
-                'total' => $this->total
+                'total' => $this->total,
+                'page' => $this->page
             ],
             'data' => $this->collection
         ];

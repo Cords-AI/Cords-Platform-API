@@ -9,6 +9,7 @@ use App\Entity\EnabledUrl;
 use Doctrine\ORM\EntityManagerInterface;
 use FOS\RestBundle\Controller\Annotations\Delete;
 use FOS\RestBundle\Controller\Annotations\Get;
+use FOS\RestBundle\Controller\Annotations\Patch;
 use FOS\RestBundle\Controller\Annotations\Post;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -17,8 +18,10 @@ use Symfony\Component\HttpFoundation\Request;
 class ApprovedPartnerController extends AbstractController
 {
     #[Post('/partner/approved/api-key/add')]
-    public function addApiKey(EntityManagerInterface $em): JsonResponse
+    public function addApiKey(EntityManagerInterface $em, Request $request): JsonResponse
     {
+        $body = json_decode($request->getContent());
+
         $uid = $this->getUser()->getUserIdentifier();
 
         $repository = $em->getRepository(Account::class);
@@ -28,10 +31,28 @@ class ApprovedPartnerController extends AbstractController
         $key->setApiKey(bin2hex(random_bytes(16)));
         $key->setUid($uid);
         $key->setAccount($account);
+        $key->setName(trim($body->name));
+        $key->setType($body->type);
         $em->persist($key);
         $em->flush();
 
         return new JsonResponse(["data" => $key]);
+    }
+
+    #[Patch('/partner/approved/api-key/update/{id}')]
+    public function updateKeyName(EntityManagerInterface $em, Request $request, string $id): JsonResponse
+    {
+        $body = json_decode($request->getContent());
+        $uid = $this->getUser()->getUserIdentifier();
+
+        $repository = $em->getRepository(ApiKey::class);
+        $apiKey = $repository->findOneBy(['id' => $id, 'uid' => $uid]);
+
+        $apiKey->setName(trim($body->name));
+        $em->persist($apiKey);
+        $em->flush();
+
+        return new JsonResponse(["data" => $apiKey]);
     }
 
     #[Delete('/partner/approved/api-key/delete/{id}')]

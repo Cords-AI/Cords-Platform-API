@@ -115,6 +115,15 @@ class LogCollection extends AbstractCollection
                 ->setParameter('endDate', $endDate);
         }
 
+        if (!empty($this->filters['key-type'])) {
+            $keyTypes = explode(',', $this->filters['key-type']);
+            $this->qb->leftJoin(ApiKey::class, 'apiKeyTable', 'WITH', 'log.apiKey = apiKeyTable.apiKey')
+                ->andWhere('apiKeyTable.type IN(:keyTypes)')
+                ->andWhere('apiKeyTable.uid = :uid')
+                ->setParameter('keyTypes', $keyTypes)
+                ->setParameter('uid', $this->userUid);
+        }
+
         $direction = $this->descending ? 'DESC' : 'ASC';
 
         $this->qb->orderBy("TRIM(log.$this->sort)", $direction);

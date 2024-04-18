@@ -25,6 +25,12 @@ class ApiKey implements JsonSerializable
     #[ORM\Column(nullable: true)]
     private ?bool $deleted = null;
 
+    #[ORM\Column(length: 1000)]
+    private ?string $name = null;
+
+    #[ORM\Column(length: 100)]
+    private ?string $type = null;
+
     #[ORM\ManyToOne(inversedBy: 'apiKeys')]
     #[ORM\JoinColumn(name: "uid", referencedColumnName: "uid")]
     private ?Account $account = null;
@@ -83,7 +89,9 @@ class ApiKey implements JsonSerializable
         return [
             "id" => $this->id,
             "uid" => $this->uid,
-            "apiKey" => $this->apiKey
+            "apiKey" => $this->apiKey,
+            "name" => $this->name,
+            "type" => $this->type,
         ];
     }
 
@@ -95,6 +103,30 @@ class ApiKey implements JsonSerializable
     public function setAccount(?Account $account): static
     {
         $this->account = $account;
+
+        return $this;
+    }
+
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+
+    public function setName(string $name): static
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
+    public function getType(): ?string
+    {
+        return $this->type;
+    }
+
+    public function setType(string $type): static
+    {
+        $this->type = $type;
 
         return $this;
     }

@@ -141,4 +141,32 @@ class LogCollection extends AbstractCollection
         $apiKeys = $apiKeyRepository->findBy(['uid' => $this->userUid]);
         return array_map(fn ($apiKey) => $apiKey->getApiKey(), $apiKeys);
     }
+
+    protected function setHeaders(): void
+    {
+        $this->exportHeaders[] = 'API key';
+        $this->exportHeaders[] = 'Type';
+        $this->exportHeaders[] = 'Query';
+        $this->exportHeaders[] = 'Province';
+        $this->exportHeaders[] = 'Latitude';
+        $this->exportHeaders[] = 'Longitude';
+        $this->exportHeaders[] = 'Created Date';
+    }
+
+    protected function setExportableRows(): void
+    {
+        $this->exportableRows = [$this->exportHeaders];
+        /** @var Log $log */
+        foreach ($this->collection as $log) {
+            $currentRow['API key'] = $log->getApiKey();
+            $currentRow['Type'] = $log->getType();
+            $currentRow['Query'] = $log->getSearchString();
+            $currentRow['Province'] = $log->getProvince();
+            $currentRow['Latitude'] = $log->getLatitude();
+            $currentRow['Longitude'] = $log->getLongitude();
+            $currentRow['Created Date'] = $log->getCreatedDate() ? $log->getCreatedDate()->format('d/M/Y - G:i:s') : '';
+
+            $this->exportableRows[] = $currentRow;
+        }
+    }
 }

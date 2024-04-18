@@ -160,4 +160,27 @@ class PartnerController extends AbstractController
 
         return new JsonResponse($logCollection->returnAsJSON());
     }
+
+    #[Get("/partner/report/export")]
+    public function exportLogs(Request $request, LogCollection $logCollection)
+    {
+        $filters = $request->get('filters');
+        $search = $request->get('search');
+
+        $uid = $this->getUser()->getUserIdentifier();
+
+        $logCollection->userUid($uid)
+            ->limitToRelatedApiKeys(true)
+            ->limit(10000000)
+            ->filters($filters)
+            ->page(1)
+            ->search($search)
+            ->sort($request->get('sort-by'), $request->get('descending'))
+            ->fetchRows();
+
+        $logCollection->render();
+        $logCollection->send();
+
+        return new JsonResponse([]);
+    }
 }

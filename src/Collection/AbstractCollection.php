@@ -4,6 +4,7 @@ namespace App\Collection;
 
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
+use Shuchkin\SimpleXLSXGen;
 
 abstract class AbstractCollection
 {
@@ -24,6 +25,10 @@ abstract class AbstractCollection
     protected bool $descending = true;
 
     protected string $search = '';
+
+    protected array $exportableRows = [];
+
+    protected array $exportHeaders = [];
 
     public function __construct(ManagerRegistry $doctrine)
     {
@@ -64,5 +69,30 @@ abstract class AbstractCollection
             ],
             'data' => $this->collection
         ];
+    }
+
+    abstract protected function setHeaders(): void;
+
+    abstract protected function setExportableRows(): void;
+
+    public function render(): self
+    {
+        $this->setHeaders();
+        $this->setExportableRows();
+        return $this;
+    }
+
+    public function send(): void
+    {
+        $this->outputWritableData($this->exportableRows);
+        exit;
+    }
+
+    public function outputWritableData($rows): void
+    {
+        $origin = $_SERVER['HTTP_ORIGIN'] ?? '*';
+        header("Access-Control-Allow-Origin:$origin");
+        header('Access-Control-Allow-Credentials:true');
+        SimpleXLSXGen::fromArray($rows)->download();
     }
 }

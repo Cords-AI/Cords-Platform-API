@@ -72,8 +72,9 @@ class LogCollection extends AbstractCollection
         }
 
         if (!empty($this->filters['province'])) {
-            $province = $this->filters['province'];
-            $this->qb->andWhere("log.province = '$province'");
+            $provinces = explode(',', $this->filters['province']);
+            $this->qb->andWhere('log.province IN(:provinces)')
+                ->setParameter('provinces', $provinces);
         }
 
         if (!empty($this->filters['api-key'])) {

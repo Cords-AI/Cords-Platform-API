@@ -3,9 +3,12 @@
 namespace App\Controller;
 
 use App\Dto\Authenticated\FilterData;
+use App\Dto\Authenticated\UserData;
 use App\Entity\Filter;
+use App\Entity\Profile;
 use App\Repository\AccountRepository;
 use App\Repository\FilterRepository;
+use App\RequestParams\ProfileParams;
 use Doctrine\ORM\EntityManagerInterface;
 use FOS\RestBundle\Controller\Annotations\Delete;
 use FOS\RestBundle\Controller\Annotations\Get;
@@ -24,7 +27,31 @@ class AuthenticatedController extends AbstractController
         if ($account) {
             $user->setStatus($account->getStatus());
         }
-        return new JsonResponse(["data" => $user]);
+        $userData = new UserData($user->dto(), $account);
+        return new JsonResponse(["data" => $userData]);
+    }
+
+    #[Post('/authenticated/profile')]
+    public function createProfile(
+        AccountRepository $repository,
+        EntityManagerInterface $em,
+        ProfileParams $params
+    ): JsonResponse {
+        $user = $this->getUser();
+        $account = $repository->findOneBy(['uid' => $user->getUserIdentifier()]);
+
+        $profile = $account->getProfile();
+        if (!$profile) {
+            $profile = new Profile();
+            $account->setProfile($profile);
+        }
+        $profile->setOrganization($params->organization);
+        $profile->setPurpose($params->purpose);
+
+        $em->persist($account);
+        $em->flush();
+
+        return $this->json([]);
     }
 
     #[Get('/authenticated/filters')]

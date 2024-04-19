@@ -21,6 +21,9 @@ class Account
     #[ORM\OneToMany(mappedBy: 'account', targetEntity: ApiKey::class)]
     private Collection $apiKeys;
 
+    #[ORM\OneToOne(cascade: ['persist', 'remove'])]
+    private ?Profile $profile = null;
+
     public function __construct()
     {
         $this->apiKeys = new ArrayCollection();
@@ -76,6 +79,18 @@ class Account
                 $apiKey->setAccount(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getProfile(): ?Profile
+    {
+        return $this->profile;
+    }
+
+    public function setProfile(?Profile $profile): static
+    {
+        $this->profile = $profile;
 
         return $this;
     }

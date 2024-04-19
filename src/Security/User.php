@@ -4,10 +4,9 @@ namespace App\Security;
 
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
-use JsonSerializable;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-class User implements UserInterface, JsonSerializable
+class User implements UserInterface
 {
     private ?string $id;
 
@@ -23,7 +22,7 @@ class User implements UserInterface, JsonSerializable
 
     private ?string $status;
 
-    private bool  $isAdmin = false;
+    private bool $isAdmin = false;
 
     public static function create($token, $keyUrl = "https://www.googleapis.com/identitytoolkit/v3/relyingparty/publicKeys"): ?User
     {
@@ -32,26 +31,26 @@ class User implements UserInterface, JsonSerializable
         $keys = json_decode(file_get_contents($keyUrl), true);
 
         $decoded = null;
-        foreach($keys as $key) {
+        foreach ($keys as $key) {
             try {
                 $key = new Key($key, 'RS256');
                 $decoded = JWT::decode($token, $key);
 
-            } catch(\Exception $e) {
+            } catch (\Exception $e) {
             }
         }
 
-        if(!$decoded) {
+        if (!$decoded) {
             return null;
         }
 
-        if($decoded->email_verified) {
+        if ($decoded->email_verified) {
             $user->emailVerified = true;
         }
 
         $user->id = $decoded->user_id;
         $user->email = $decoded->email;
-        if(!empty($decoded->name)) {
+        if (!empty($decoded->name)) {
             $user->name = $decoded->name;
             $user->initials = User::computeInitials($decoded->name);
         } else {
@@ -59,7 +58,7 @@ class User implements UserInterface, JsonSerializable
         }
         $user->avatar = $decoded->picture ?? null;
 
-        if(!empty($decoded->admin)) {
+        if (!empty($decoded->admin)) {
             $user->isAdmin = $decoded->admin;
         }
 
@@ -77,16 +76,16 @@ class User implements UserInterface, JsonSerializable
     public function getRoles(): array
     {
         $roles = [];
-        if(!empty($this->id)) {
+        if (!empty($this->id)) {
             $roles[] = "ROLE_AUTHENTICATED";
         }
-        if($this->emailVerified) {
+        if ($this->emailVerified) {
             $roles[] = "ROLE_VERIFIED";
         }
-        if($this->isAdmin) {
+        if ($this->isAdmin) {
             $roles[] = "ROLE_ADMIN";
         }
-        if($this->status === 'approved') {
+        if ($this->status === 'approved') {
             $roles[] = "ROLE_APPROVED";
         }
         return $roles;
@@ -106,9 +105,9 @@ class User implements UserInterface, JsonSerializable
         $this->status = $status;
     }
 
-    public function jsonSerialize(): mixed
+    public function dto(): object
     {
-        return [
+        return (object)[
             "id" => $this->id,
             "email" => $this->email,
             "name" => $this->name ?? "",

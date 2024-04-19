@@ -2,6 +2,7 @@
 
 namespace App\Security;
 
+use App\Repository\AccountRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -14,6 +15,10 @@ use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPasspor
 
 class FirebaseCookieAuthenticator extends AbstractAuthenticator
 {
+    public function __construct(private AccountRepository $accountRepository)
+    {
+    }
+
     public function supports(Request $request): ?bool
     {
         $uri = $_SERVER['REQUEST_URI'];
@@ -39,6 +44,12 @@ class FirebaseCookieAuthenticator extends AbstractAuthenticator
         }
 
         $passport = new SelfValidatingPassport(new UserBadge("", function () use ($user) {
+            if ($user) {
+                $account = $this->accountRepository->findOneBy(['uid' => $user->getUserIdentifier()]);
+                if ($account) {
+                    $user->setStatus($account->getStatus());
+                }
+            }
             return $user;
         }));
 

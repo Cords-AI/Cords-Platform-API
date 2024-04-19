@@ -6,7 +6,6 @@ use App\Collection\LogCollection;
 use App\Entity\Account;
 use App\Entity\ApiKey;
 use App\Entity\EnabledUrl;
-use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use FOS\RestBundle\Controller\Annotations\Delete;
 use FOS\RestBundle\Controller\Annotations\Get;
@@ -15,9 +14,9 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
-class PartnerController extends AbstractController
+class ApprovedPartnerController extends AbstractController
 {
-    #[Post('/partner/api-key/add')]
+    #[Post('/partner/approved/api-key/add')]
     public function addApiKey(EntityManagerInterface $em): JsonResponse
     {
         $uid = $this->getUser()->getUserIdentifier();
@@ -35,7 +34,7 @@ class PartnerController extends AbstractController
         return new JsonResponse(["data" => $key]);
     }
 
-    #[Delete('/partner/api-key/delete/{id}')]
+    #[Delete('/partner/approved/api-key/delete/{id}')]
     public function deleteApiKey(EntityManagerInterface $em, string $id): JsonResponse
     {
         $uid = $this->getUser()->getUserIdentifier();
@@ -51,7 +50,7 @@ class PartnerController extends AbstractController
         return new JsonResponse(["data" => 'deleted']);
     }
 
-    #[Get('/partner/api-key/list')]
+    #[Get('/partner/approved/api-key/list')]
     public function getApiKeysList(EntityManagerInterface $em, Request $request): JsonResponse
     {
         $uid = $this->getUser()->getUserIdentifier();
@@ -70,7 +69,7 @@ class PartnerController extends AbstractController
         return new JsonResponse(["data" => $queryBuilder->getQuery()->getResult()]);
     }
 
-    #[Get('/partner/api-key/{id}')]
+    #[Get('/partner/approved/api-key/{id}')]
     public function getApiKey(EntityManagerInterface $em, string $id): JsonResponse
     {
         $uid = $this->getUser()->getUserIdentifier();
@@ -82,7 +81,7 @@ class PartnerController extends AbstractController
         return new JsonResponse(["data" => $key]);
     }
 
-    #[Post('/partner/enabled-url/api-key/{id}/add')]
+    #[Post('/partner/approved/enabled-url/api-key/{id}/add')]
     public function addEnabledUrl(EntityManagerInterface $em, string $id, Request $request): JsonResponse
     {
         $uid = $this->getUser()->getUserIdentifier();
@@ -107,7 +106,7 @@ class PartnerController extends AbstractController
         return new JsonResponse(["data" => 'url added']);
     }
 
-    #[Delete('/partner/enabled-url/api-key/{apiKeyId}/remove/{urlId}')]
+    #[Delete('/partner/approved/enabled-url/api-key/{apiKeyId}/remove/{urlId}')]
     public function deleteEnabledUrl(EntityManagerInterface $em, string $apiKeyId, string $urlId): JsonResponse
     {
         $uid = $this->getUser()->getUserIdentifier();
@@ -128,7 +127,7 @@ class PartnerController extends AbstractController
         return new JsonResponse(["data" => 'url removed']);
     }
 
-    #[Get('/partner/enabled-urls/api-key/{id}')]
+    #[Get('/partner/approved/enabled-urls/api-key/{id}')]
     public function getEnabledUrls(EntityManagerInterface $em, string $id): JsonResponse
     {
         $uid = $this->getUser()->getUserIdentifier();
@@ -140,7 +139,7 @@ class PartnerController extends AbstractController
         return new JsonResponse(["data" => $key->getEnabledUrls()->getValues()]);
     }
 
-    #[Get('/partner/report')]
+    #[Get('/partner/approved/report')]
     public function getReport(Request $request, LogCollection $logCollection): JsonResponse
     {
         $filters = $request->get('filters');
@@ -161,7 +160,7 @@ class PartnerController extends AbstractController
         return new JsonResponse($logCollection->returnAsJSON());
     }
 
-    #[Get("/partner/report/export")]
+    #[Get("/partner/approved/report/export")]
     public function exportLogs(Request $request, LogCollection $logCollection)
     {
         $filters = $request->get('filters');

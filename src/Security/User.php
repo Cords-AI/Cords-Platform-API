@@ -86,6 +86,9 @@ class User implements UserInterface, JsonSerializable
         if($this->isAdmin) {
             $roles[] = "ROLE_ADMIN";
         }
+        if($this->status === 'approved') {
+            $roles[] = "ROLE_APPROVED";
+        }
         return $roles;
     }
 

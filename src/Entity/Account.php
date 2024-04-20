@@ -21,7 +21,7 @@ class Account
     #[ORM\OneToMany(mappedBy: 'account', targetEntity: ApiKey::class)]
     private Collection $apiKeys;
 
-    #[ORM\OneToOne(cascade: ['persist', 'remove'])]
+    #[ORM\OneToOne(cascade: ['persist', 'remove'], fetch: 'EAGER')]
     private ?Profile $profile = null;
 
     public function __construct()

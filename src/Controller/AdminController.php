@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Collection\AccountCollection;
+use App\Dto\Admin\AccountData;
 use App\Dto\Admin\UserData;
 use App\Repository\AccountRepository;
 use App\RequestParams\StatusParams;
@@ -16,7 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
 class AdminController extends AbstractController
 {
     #[Get('/admin/users')]
-    public function user(Request $request, AccountCollection $collection): JsonResponse
+    public function getUsers(Request $request, AccountCollection $collection): JsonResponse
     {
         $collection
             ->filters($request->get('filters'))
@@ -34,6 +35,24 @@ class AdminController extends AbstractController
                 "page" => $collection->getPage()
             ],
             "data" => $data
+        ]);
+    }
+
+    #[Get('/admin/users/{id}')]
+    public function getUserRequest(
+        AccountCollection $collection,
+        AccountRepository $repository,
+        $id
+    ): JsonResponse {
+        $collection->execute();
+        $rows = $collection->getRows();
+
+        $firebaseUser = current(array_filter($rows, fn($row) => $row->uid === $id));
+        $account = $repository->findOneBy(['uid' => $id]);
+        $accountData = new AccountData($account, $firebaseUser);
+
+        return new JsonResponse([
+            "data" => $accountData
         ]);
     }
 

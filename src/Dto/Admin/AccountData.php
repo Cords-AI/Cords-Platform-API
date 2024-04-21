@@ -20,11 +20,15 @@ class AccountData
 
     public ?string $purpose;
 
-    public function __construct(Account $account, object $firebaseUser)
+    public function __construct(Account|null $account, object $firebaseUser)
     {
         $this->uid = $firebaseUser->uid;
         $this->email = $firebaseUser->email;
         $this->name = $firebaseUser->displayName ?? null;
+
+        if (!$account) {
+            return;
+        }
         $this->status = $account->getStatus();
         $profile = $account->getProfile();
         if ($profile) {

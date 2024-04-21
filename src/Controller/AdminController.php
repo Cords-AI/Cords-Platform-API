@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Collection\AccountCollection;
 use App\Dto\Admin\AccountData;
 use App\Dto\Admin\UserData;
+use App\Entity\Account;
 use App\Repository\AccountRepository;
 use App\RequestParams\StatusParams;
 use Doctrine\ORM\EntityManagerInterface;
@@ -63,7 +64,12 @@ class AdminController extends AbstractController
         EntityManagerInterface $em
     ): JsonResponse {
 
+        /** @var Account $account */
         $account = $repository->findOneBy(['uid' => $params->uid]);
+        if (!$account) {
+            $account = new Account();
+            $account->setUid($params->uid);
+        }
         $account->setStatus($params->status);
         $em->persist($account);
         $em->flush();

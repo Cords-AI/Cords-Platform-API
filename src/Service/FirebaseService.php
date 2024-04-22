@@ -8,6 +8,15 @@ class FirebaseService
 {
     private string $baseUrl;
 
+    public static function getMatchingFirebaseUser(array $users, string $uid): ?\stdClass {
+        foreach ($users as $user) {
+            if ($user->uid === $uid) {
+                return $user;
+            }
+        }
+        return null;
+    }
+
     public function __construct(
         private HttpClientInterface $client,
     ) {

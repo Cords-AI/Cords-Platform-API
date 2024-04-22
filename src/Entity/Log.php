@@ -38,6 +38,9 @@ class Log implements \JsonSerializable
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $createdDate = null;
 
+    #[ORM\Column(length: 500, nullable: true)]
+    private ?string $email = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -139,6 +142,18 @@ class Log implements \JsonSerializable
         return $this;
     }
 
+    public function getEmail(): ?string
+    {
+        return $this->email;
+    }
+
+    public function setEmail(?string $email): static
+    {
+        $this->email = $email;
+
+        return $this;
+    }
+
     public function jsonSerialize(): mixed
     {
         return [
@@ -150,6 +165,7 @@ class Log implements \JsonSerializable
             'province' => $this->province,
             'type' => $this->type,
             'createdDate' => $this->createdDate,
+            'email' => $this->email ?? '',
         ];
     }
 }

@@ -11,7 +11,7 @@ class LogCollection extends AbstractCollection
 {
     private string $userUid;
 
-    private bool $limitToRelatedApiKeys = false;
+    private bool $isAdmin = false;
 
     protected int $limit = 25;
 
@@ -53,21 +53,32 @@ class LogCollection extends AbstractCollection
         return $this;
     }
 
-    public function limitToRelatedApiKeys($limitToRelatedApiKeys): self
+    public function isAdmin(?bool $isAdmin): self
     {
-        if ($limitToRelatedApiKeys) {
-            $this->limitToRelatedApiKeys = $limitToRelatedApiKeys;
+        if ($isAdmin) {
+            $this->isAdmin = $isAdmin;
         }
         return $this;
     }
 
     public function fetchRows(): array
     {
-        $this->qb->select('log')
+        $fieldsToFetch = ['id', 'apiKey', 'ip', 'searchString', 'latitude', 'longitude', 'province', 'type', 'createdDate'];
+        if ($this->isAdmin) {
+            $fieldsToFetch[] = 'email';
+        }
+
+        $fields = implode(', ', $fieldsToFetch);
+
+        $this->qb->select("partial log.{ $fields }")
             ->from(Log::class, 'log');
 
-        if ($this->limitToRelatedApiKeys) {
+        if (!$this->isAdmin) {
             $relatedApiKeys = $this->getRelatedApiKeys();
+            if(empty($relatedApiKeys)) {
+                $this->collection = [];
+                return $this->collection;
+            }
             $this->qb->where($this->qb->expr()->in('log.apiKey', $relatedApiKeys));
         }
 

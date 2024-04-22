@@ -169,9 +169,10 @@ class ApprovedPartnerController extends AbstractController
         $search = $request->get('search');
 
         $uid = $this->getUser()->getUserIdentifier();
+        $isAdmin = in_array('ROLE_ADMIN', $this->getUser()->getRoles());
 
         $logCollection->userUid($uid)
-            ->limitToRelatedApiKeys(true)
+            ->isAdmin($isAdmin)
             ->filters($filters)
             ->page($page)
             ->search($search)
@@ -188,9 +189,10 @@ class ApprovedPartnerController extends AbstractController
         $search = $request->get('search');
 
         $uid = $this->getUser()->getUserIdentifier();
+        $isAdmin = in_array('ROLE_ADMIN', $this->getUser()->getRoles());
 
         $logCollection->userUid($uid)
-            ->limitToRelatedApiKeys(true)
+            ->isAdmin($isAdmin)
             ->limit(10000000)
             ->filters($filters)
             ->page(1)

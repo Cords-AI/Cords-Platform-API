@@ -5,6 +5,7 @@ namespace App\Collection;
 use App\Entity\ApiKey;
 use App\Entity\Log;
 use DateTime;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 
 class LogCollection extends AbstractCollection
@@ -63,7 +64,8 @@ class LogCollection extends AbstractCollection
 
     public function fetchRows(): array
     {
-        $fieldsToFetch = ['id', 'apiKey', 'ip', 'searchString', 'latitude', 'longitude', 'province', 'type', 'createdDate'];
+        $fieldsToFetch = ['id', 'apiKey', 'ip', 'searchString', 'latitude', 'longitude', 'province', 'type',
+            'createdDate', 'postalCode', 'country'];
         if ($this->isAdmin) {
             $fieldsToFetch[] = 'email';
         }
@@ -121,6 +123,9 @@ class LogCollection extends AbstractCollection
 
             $this->qb->andWhere($orX);
         }
+
+        $this->addTextFieldFilter('postal-code', $this->qb);
+        $this->addTextFieldFilter('country', $this->qb);
 
         if (!empty($this->filters['dates'])) {
             $dateRange = urldecode($this->filters['dates']);
@@ -202,5 +207,24 @@ class LogCollection extends AbstractCollection
 
             $this->exportableRows[] = $currentRow;
         }
+    }
+
+    private function addTextFieldFilter(string $fieldName, QueryBuilder &$qb): void
+    {
+        if (!empty($this->filters[$fieldName])) {
+            $textFilter = $this->filters[$fieldName];
+            $textFilter = "%$textFilter%";
+            $fieldName = $this->kebabToCamelCase($fieldName);
+            $this->qb->andWhere("log.{$fieldName} LIKE :{$fieldName}")
+                ->setParameter("$fieldName", $textFilter);
+        }
+    }
+
+    function kebabToCamelCase($originalString): string
+    {
+        $formattedStr = str_replace('-', ' ', $originalString);
+        $formattedStr = ucwords($formattedStr);
+        $formattedStr = str_replace(' ', '', $formattedStr);
+        return lcfirst($formattedStr);
     }
 }

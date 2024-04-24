@@ -31,6 +31,8 @@ class SystemController extends AbstractController
         $log->setLatitude(floatval($body->latitude));
         $log->setLongitude(floatval($body->longitude));
         $log->setProvince($body->province);
+        $log->setCountry($body->country);
+        $log->setPostalCode($body->postalCode);
         $log->setType($body->type);
         $log->setFilters($body->filters);
         $log->setCreatedDate(new \DateTime());

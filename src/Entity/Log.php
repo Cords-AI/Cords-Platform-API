@@ -35,6 +35,12 @@ class Log implements \JsonSerializable
     #[ORM\Column(length: 50, nullable: true)]
     private ?string $province = null;
 
+    #[ORM\Column(length: 15, nullable: true)]
+    private ?string $postalCode = null;
+
+    #[ORM\Column(length: 500, nullable: true)]
+    private ?string $country = null;
+
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $createdDate = null;
 
@@ -170,6 +176,30 @@ class Log implements \JsonSerializable
         return $this;
     }
 
+    public function getPostalCode(): ?string
+    {
+        return $this->postalCode;
+    }
+
+    public function setPostalCode(?string $postalCode): static
+    {
+        $this->postalCode = $postalCode;
+
+        return $this;
+    }
+
+    public function getCountry(): ?string
+    {
+        return $this->country;
+    }
+
+    public function setCountry(?string $country): static
+    {
+        $this->country = $country;
+
+        return $this;
+    }
+
     public function jsonSerialize(): mixed
     {
         return [
@@ -183,6 +213,8 @@ class Log implements \JsonSerializable
             'createdDate' => $this->createdDate,
             'email' => $this->email ?? '',
             'filters' => $this->filters ?? [],
+            'country' => $this->country,
+            'postalCode' => $this->postalCode,
         ];
     }
 }

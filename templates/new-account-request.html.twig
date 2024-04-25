@@ -1,0 +1,34 @@
+{% apply inline_css(source("email.css")) %}
+<html>
+
+<body>
+
+<table class="email">
+
+  <tr class="body new-account-email">
+    <td>
+      <table class="body-table">
+        <tr class="body-body">
+          <td>
+            <div class="wysiwyg">
+              <p>
+                A new account is awaiting approval
+              </p>
+              <p>
+                User's language: {{ vm.clientLanguage }}
+              </p>
+              <p>
+                <a href="{{ vm.accountLink }}">Click here to go to account details</a>
+              </p>
+            </div>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+
+</table>
+
+</body>
+</html>
+{% endapply %}

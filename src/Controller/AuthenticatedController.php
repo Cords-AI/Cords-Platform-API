@@ -4,11 +4,15 @@ namespace App\Controller;
 
 use App\Dto\Authenticated\FilterData;
 use App\Dto\Authenticated\UserData;
+use App\Email\NewAccountRequestViewModel;
+use App\Email\EmailService;
+use App\Entity\Account;
 use App\Entity\Filter;
 use App\Entity\Profile;
 use App\Repository\AccountRepository;
 use App\Repository\FilterRepository;
 use App\RequestParams\ProfileParams;
+use App\Utils\ClientContext;
 use Doctrine\ORM\EntityManagerInterface;
 use FOS\RestBundle\Controller\Annotations\Delete;
 use FOS\RestBundle\Controller\Annotations\Get;
@@ -35,10 +39,20 @@ class AuthenticatedController extends AbstractController
     public function createProfile(
         AccountRepository $repository,
         EntityManagerInterface $em,
-        ProfileParams $params
+        ProfileParams $params,
+        EmailService $emailService,
+        ClientContext $clientContext
     ): JsonResponse {
         $user = $this->getUser();
         $account = $repository->findOneBy(['uid' => $user->getUserIdentifier()]);
+
+        if (!$account) {
+            $account = new Account();
+            $account->setUid($user->getUserIdentifier());
+            $account->setStatus('pending');
+            $em->persist($account);
+            $em->flush();
+        }
 
         $profile = $account->getProfile();
         if (!$profile) {
@@ -50,6 +64,18 @@ class AuthenticatedController extends AbstractController
 
         $em->persist($account);
         $em->flush();
+
+        if (!empty($_ENV['FROM_EMAIL'])) {
+            $to = $_ENV['ADMIN_EMAIL'];
+            $langCode = $clientContext->langCode;
+            $subject = "A new account is awaiting approval";
+            $template = "new-account-request";
+            $vm = new NewAccountRequestViewModel();
+            $vm->clientLanguage = $langCode === 'fr' ? 'French' : 'English';
+            $vm->accountLink = "{$_ENV['CORDS_ADMIN_FRONTEND_URL']}/en/accounts/{$user->getUserIdentifier()}";
+
+            $emailService->send($to, $subject, $template, $vm);
+        }
 
         return $this->json([]);
     }

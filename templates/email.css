@@ -1,0 +1,152 @@
+.email {
+    margin: 0 auto;
+    padding: 0;
+    width: 100%;
+    max-width: 600px;
+    height: 100%;
+    border: 1px solid #ecebeb;
+    border-spacing: 0;
+    background: #f6f9fc;
+    font-family: "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+    font-weight: 400;
+}
+.email tr.header td {
+    padding: 35px 20px;
+}
+.email tr.header td img {
+    display: block;
+    width: 195px;
+    height: 46px;
+}
+.email tr.body > td {
+    padding: 0 6px 20px 6px;
+}
+.email tr.body.new-account-email > td {
+    padding: 6px;
+}
+.email tr.body > td table.body-table {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    border: 1px solid #ecebeb;
+    border-spacing: 0;
+    background: #ffffff;
+}
+.email tr.body > td table.body-table tr.body-body > td {
+    padding: 40px 14px;
+}
+.email tr.footer > td {
+    padding: 0 14px 20px 14px;
+}
+.email tr.footer > td .footer-summary {
+    font-size: 12px;
+    color: #4c5c67;
+}
+.email tr.footer > td .footer-summary a {
+    color: #0095ff;
+}
+.email tr.footer > td .footer-contact-block {
+    margin-bottom: 10px;
+}
+.email tr.footer > td .footer-contact-block:last-child {
+    margin-bottom: 0;
+}
+.email .wysiwyg {
+    font-size: 16px;
+    font-weight: 400;
+    color: #4c5c67;
+}
+.email .wysiwyg > *:first-child {
+    margin-top: 0;
+}
+.email .wysiwyg a {
+    color: #0095ff;
+    text-decoration: none;
+}
+.email .wysiwyg h1,
+.email .wysiwyg h2,
+.email .wysiwyg h3,
+.email .wysiwyg p,
+.email .wysiwyg a,
+.email .wysiwyg ul,
+.email .wysiwyg ol,
+.email .wysiwyg li {
+    font-family: "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+}
+.email .wysiwyg h1,
+.email .wysiwyg h2,
+.email .wysiwyg h3 {
+    font-weight: 400;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    color: #232a2f;
+    margin-top: 0.75em;
+    margin-bottom: 0;
+}
+.email .wysiwyg h1 + h1,
+.email .wysiwyg h1 + h2,
+.email .wysiwyg h1 + h3,
+.email .wysiwyg h2 + h2,
+.email .wysiwyg h2 + h3,
+.email .wysiwyg h3 + h3 {
+    margin-top: 0.25em;
+}
+.email .wysiwyg h1 {
+    font-size: 2em;
+}
+.email .wysiwyg h2 {
+    font-size: 1.5em;
+}
+.email .wysiwyg h3 {
+    font-size: 1.25em;
+}
+.email .wysiwyg p {
+    line-height: 1.5;
+    margin-top: 1em;
+}
+.email .wysiwyg ul {
+    list-style: disc;
+}
+.email .wysiwyg ol {
+    list-style: decimal;
+}
+.email .wysiwyg ol,
+.email .wysiwyg ul {
+    padding-left: 1em;
+    font-weight: 400;
+    line-height: 1.3;
+}
+.email .wysiwyg ol li,
+.email .wysiwyg ul li {
+    margin: 0;
+    margin-left: 1em;
+    margin-bottom: 0.25em;
+}
+.email .wysiwyg ol li.list-item,
+.email .wysiwyg ul li.list-item {
+    margin-bottom: 1em;
+}
+.email .wysiwyg ol li.list-item:last-child,
+.email .wysiwyg ul li.list-item:last-child {
+    margin-bottom: 0;
+}
+.email .wysiwyg ol li:last-child,
+.email .wysiwyg ul li:last-child {
+    margin-bottom: 0;
+}
+.email .wysiwyg strong {
+    font-weight: 500;
+}
+.email .wysiwyg em {
+    font-style: italic;
+}
+.email .wysiwyg hr {
+    margin: 2em 0;
+    border: none;
+    height: 1px;
+    background: #ecebeb;
+}
+.email .wysiwyg .small {
+    font-size: 0.8125em;
+}

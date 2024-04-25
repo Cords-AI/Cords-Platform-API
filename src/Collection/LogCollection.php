@@ -109,6 +109,19 @@ class LogCollection extends AbstractCollection
                 ->setParameter('search', $search);
         }
 
+        if (!empty($this->filters['filters'])) {
+            $filters = explode(',', $this->filters['filters']);
+            $orX = $this->qb->expr()->orX();
+
+            foreach ($filters as $index => $filter) {
+                $orX->add($this->qb->expr()->eq("JSON_CONTAINS(log.filters, :jsonValue{$index})", '1'));
+                $filterValue = $filter === "211" ? $filter : json_encode($filter);
+                $this->qb->setParameter("jsonValue{$index}", $filterValue);
+            }
+
+            $this->qb->andWhere($orX);
+        }
+
         if (!empty($this->filters['dates'])) {
             $dateRange = urldecode($this->filters['dates']);
             $timestamps = explode("|", $dateRange);

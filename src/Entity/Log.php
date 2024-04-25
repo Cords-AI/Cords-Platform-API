@@ -40,6 +40,9 @@ class Log implements \JsonSerializable
 
     #[ORM\Column(length: 500, nullable: true)]
     private ?string $email = null;
+    #
+    #[ORM\Column(type: 'json')]
+    private ?array $filters = null;
 
     public function getId(): ?int
     {
@@ -150,6 +153,19 @@ class Log implements \JsonSerializable
     public function setEmail(?string $email): static
     {
         $this->email = $email;
+        
+        return $this;
+
+    }
+
+    public function getFilters(): ?array
+    {
+        return $this->filters;
+    }
+
+    public function setFilters(?array $filters): static
+    {
+        $this->filters = $filters;
 
         return $this;
     }
@@ -166,6 +182,7 @@ class Log implements \JsonSerializable
             'type' => $this->type,
             'createdDate' => $this->createdDate,
             'email' => $this->email ?? '',
+            'filters' => $this->filters ?? [],
         ];
     }
 }

@@ -20,7 +20,7 @@ class User implements UserInterface
 
     private ?string $avatar;
 
-    private ?string $status;
+    private ?string $status = "pending";
 
     private bool $isAdmin = false;
 
@@ -85,7 +85,7 @@ class User implements UserInterface
         if ($this->isAdmin) {
             $roles[] = "ROLE_ADMIN";
         }
-        if ($this->status === 'approved') {
+        if (isset($this->status) && $this->status === 'approved') {
             $roles[] = "ROLE_APPROVED";
         }
         return $roles;

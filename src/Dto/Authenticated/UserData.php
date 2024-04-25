@@ -14,7 +14,7 @@ class UserData
 
     public string $initials;
 
-    public string $avatar;
+    public ?string $avatar;
 
     public bool $emailVerified;
 
@@ -22,9 +22,9 @@ class UserData
 
     public bool $isAdmin;
 
-    public bool $isOnboarded;
+    public bool $isOnboarded = false;
 
-    public function __construct($data, Account $account)
+    public function __construct($data, Account|null $account)
     {
         $this->id = $data->id;
         $this->email = $data->email;
@@ -34,6 +34,9 @@ class UserData
         $this->emailVerified = $data->emailVerified;
         $this->status = $data->status;
         $this->isAdmin = $data->isAdmin;
+        if (!$account) {
+            return;
+        }
         $this->isOnboarded = !!$account->getProfile();
     }
 }

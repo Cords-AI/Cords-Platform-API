@@ -186,11 +186,13 @@ class LogCollection extends AbstractCollection
         $this->exportHeaders[] = 'API key';
         $this->exportHeaders[] = 'Type';
         $this->exportHeaders[] = 'Query';
+        $this->exportHeaders[] = 'Postal Code';
         $this->exportHeaders[] = 'Province';
+        $this->exportHeaders[] = 'Country';
         $this->exportHeaders[] = 'Latitude';
         $this->exportHeaders[] = 'Longitude';
-        $this->exportHeaders[] = 'Created Date';
         $this->exportHeaders[] = 'Cords Filters';
+        $this->exportHeaders[] = 'Created Date';
     }
 
     protected function setExportableRows(): void
@@ -201,11 +203,13 @@ class LogCollection extends AbstractCollection
             $currentRow['API key'] = $log->getApiKey();
             $currentRow['Type'] = $log->getType();
             $currentRow['Query'] = $log->getSearchString();
+            $currentRow['Postal Code'] = $log->getPostalCode();
             $currentRow['Province'] = $log->getProvince();
+            $currentRow['Country'] = $log->getCountry();
             $currentRow['Latitude'] = $log->getLatitude();
             $currentRow['Longitude'] = $log->getLongitude();
-            $currentRow['Created Date'] = $log->getCreatedDate() ? $log->getCreatedDate()->format('d/M/Y - G:i:s') : '';
             $currentRow['Cords Filters'] = $this->getFormattedFilterNames($log);
+            $currentRow['Created Date'] = $log->getCreatedDate() ? $log->getCreatedDate()->format('d/M/Y - G:i:s') : '';
 
             $this->exportableRows[] = $currentRow;
         }

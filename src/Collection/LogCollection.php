@@ -65,7 +65,7 @@ class LogCollection extends AbstractCollection
     public function fetchRows(): array
     {
         $fieldsToFetch = ['id', 'apiKey', 'ip', 'searchString', 'latitude', 'longitude', 'province', 'type',
-            'createdDate', 'postalCode', 'country'];
+            'createdDate', 'postalCode', 'country', 'filters'];
         if ($this->isAdmin) {
             $fieldsToFetch[] = 'email';
         }
@@ -190,6 +190,7 @@ class LogCollection extends AbstractCollection
         $this->exportHeaders[] = 'Latitude';
         $this->exportHeaders[] = 'Longitude';
         $this->exportHeaders[] = 'Created Date';
+        $this->exportHeaders[] = 'Cords Filters';
     }
 
     protected function setExportableRows(): void
@@ -204,6 +205,7 @@ class LogCollection extends AbstractCollection
             $currentRow['Latitude'] = $log->getLatitude();
             $currentRow['Longitude'] = $log->getLongitude();
             $currentRow['Created Date'] = $log->getCreatedDate() ? $log->getCreatedDate()->format('d/M/Y - G:i:s') : '';
+            $currentRow['Cords Filters'] = $this->getFormattedFilterNames($log);
 
             $this->exportableRows[] = $currentRow;
         }
@@ -226,5 +228,25 @@ class LogCollection extends AbstractCollection
         $formattedStr = ucwords($formattedStr);
         $formattedStr = str_replace(' ', '', $formattedStr);
         return lcfirst($formattedStr);
+    }
+
+    private function getFormattedFilterNames(Log $log): string
+    {
+        $names = [
+            '211' => 'Resources',
+            'magnet' => 'Employment',
+            'mentor' => 'Mentoring Opportunities',
+            'prosper' => 'Benefits',
+            'volunteer' => 'Volunteering'
+        ];
+
+        $filters = $log->getFilters() ?? [];
+        $formattedFiltersNames = [];
+
+        foreach ($filters as $filterName) {
+            $formattedFiltersNames[] = $names[$filterName];
+        }
+
+        return implode(", ", $formattedFiltersNames);
     }
 }

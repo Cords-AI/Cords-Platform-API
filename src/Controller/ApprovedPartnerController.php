@@ -5,7 +5,9 @@ namespace App\Controller;
 use App\Collection\LogCollection;
 use App\Entity\Account;
 use App\Entity\ApiKey;
+use App\Entity\EnabledIp;
 use App\Entity\EnabledUrl;
+use App\Repository\EnabledIpRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use FOS\RestBundle\Controller\Annotations\Delete;
 use FOS\RestBundle\Controller\Annotations\Get;
@@ -158,6 +160,52 @@ class ApprovedPartnerController extends AbstractController
         $key = $repository->findOneBy(['id' => $id, 'uid' => $uid]);
 
         return new JsonResponse(["data" => $key->getEnabledUrls()->getValues()]);
+    }
+
+    #[Post('/partner/approved/enabled-ip/api-key/{id}/add')]
+    public function addEnabledIp(EntityManagerInterface $em, string $id, Request $request): JsonResponse
+    {
+        $uid = $this->getUser()->getUserIdentifier();
+
+        $body = json_decode($request->getContent());
+        $ip = $body->ip;
+
+        /** @var \App\Repository\ApiKeyRepository $repository */
+        $repository = $em->getRepository(ApiKey::class);
+        $key = $repository->findOneBy(['id' => $id, 'uid' => $uid]);
+
+        $enabledIp = new EnabledIp();
+        $enabledIp->setIp($ip);
+        $enabledIp->setApiKeyId($key->getId());
+        $enabledIp->setApiKey($key);
+        $key->addEnabledIp($enabledIp);
+
+        $em->persist($enabledIp);
+        $em->persist($key);
+        $em->flush();
+
+        return new JsonResponse(["data" => 'IP added']);
+    }
+
+    #[Delete('/partner/approved/enabled-ip/api-key/{apiKeyId}/remove/{ipId}')]
+    public function deleteEnabledIp(EntityManagerInterface $em, string $apiKeyId, string $ipId): JsonResponse
+    {
+        $uid = $this->getUser()->getUserIdentifier();
+
+        /** @var \App\Repository\ApiKeyRepository $repository */
+        $apiKeysRepository = $em->getRepository(ApiKey::class);
+        $key = $apiKeysRepository->findOneBy(['id' => $apiKeyId, 'uid' => $uid]);
+
+        /** @var EnabledIpRepository $repository */
+        $enabledIpRepository = $em->getRepository(EnabledIp::class);
+        $enabledIp = $enabledIpRepository->findOneBy(['id' => $ipId, 'apiKeyId' => $apiKeyId]);
+
+        $key->removeEnabledIp($enabledIp);
+        $em->remove($enabledIp);
+        $em->persist($key);
+        $em->flush();
+
+        return new JsonResponse(["data" => 'IP removed']);
     }
 
     #[Get('/partner/approved/report')]

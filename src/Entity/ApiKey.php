@@ -38,9 +38,13 @@ class ApiKey implements JsonSerializable
     #[ORM\OneToMany(mappedBy: 'apiKey', targetEntity: EnabledUrl::class)]
     private Collection $enabledUrls;
 
+    #[ORM\OneToMany(mappedBy: 'apiKey', targetEntity: EnabledIp::class)]
+    private Collection $enabledIps;
+
     public function __construct()
     {
         $this->enabledUrls = new ArrayCollection();
+        $this->enabledIps = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -92,6 +96,8 @@ class ApiKey implements JsonSerializable
             "apiKey" => $this->apiKey,
             "name" => $this->name,
             "type" => $this->type,
+            "enabledUrls" => $this->enabledUrls->getValues() ?? [],
+            "enabledIps" => $this->enabledIps->getValues() ?? [],
         ];
     }
 
@@ -155,6 +161,36 @@ class ApiKey implements JsonSerializable
             // set the owning side to null (unless already changed)
             if ($enabledUrl->getApiKey() === $this) {
                 $enabledUrl->setApiKey(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, EnabledIp>
+     */
+    public function getEnabledIps(): Collection
+    {
+        return $this->enabledIps;
+    }
+
+    public function addEnabledIp(EnabledIp $enabledIp): static
+    {
+        if (!$this->enabledIps->contains($enabledIp)) {
+            $this->enabledIps->add($enabledIp);
+            $enabledIp->setApiKey($this);
+        }
+
+        return $this;
+    }
+
+    public function removeEnabledIp(EnabledIp $enabledIp): static
+    {
+        if ($this->enabledIps->removeElement($enabledIp)) {
+            // set the owning side to null (unless already changed)
+            if ($enabledIp->getApiKey() === $this) {
+                $enabledIp->setApiKey(null);
             }
         }
 

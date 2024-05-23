@@ -30,9 +30,10 @@ class PublicController extends AbstractController
 
         $account = $key->getAccount();
 
+        $fromValidIp = $this->determineValidIp($key);
         $fromValidUrl = $this->determineValidUrl($key, $request->headers->get('referer'));
 
-        if (empty($key) || $account->getStatus() !== 'approved' || !$fromValidUrl) {
+        if (empty($key) || $account->getStatus() !== 'approved' || !$fromValidUrl || !$fromValidIp) {
             return new JsonResponse(null, 403);
         }
 
@@ -58,5 +59,15 @@ class PublicController extends AbstractController
         }
 
         return false;
+    }
+
+    private function determineValidIp(ApiKey $key): bool {
+        $authorizedIps = array_map(fn ($enabledIp) => $enabledIp->getIp(), $key->getEnabledIps()->getValues());
+
+        if (empty($authorizedIps)) {
+            return true;
+        }
+
+        return in_array($_SERVER['HTTP_X_FORWARDED_FOR'], $authorizedIps);
     }
 }

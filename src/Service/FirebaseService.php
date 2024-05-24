@@ -29,4 +29,16 @@ class FirebaseService
         $body = json_decode($result->getContent());
         return $body->users;
     }
+
+    public function manageAdminRole(string $uid, string $action): void
+    {
+        $this->client->request('POST', "{$this->baseUrl}/users/$uid/admin", [
+            'headers' => [
+                'Content-Type' => 'application/json',
+            ],
+            'json' => [
+                'action' => $action,
+            ],
+        ]);
+    }
 }

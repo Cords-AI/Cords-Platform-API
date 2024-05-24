@@ -8,6 +8,7 @@ use App\Dto\Admin\UserData;
 use App\Entity\Account;
 use App\Repository\AccountRepository;
 use App\RequestParams\StatusParams;
+use App\Service\FirebaseService;
 use Doctrine\ORM\EntityManagerInterface;
 use FOS\RestBundle\Controller\Annotations\Get;
 use FOS\RestBundle\Controller\Annotations\Post;
@@ -73,6 +74,19 @@ class AdminController extends AbstractController
         $account->setStatus($params->status);
         $em->persist($account);
         $em->flush();
+
+        return new JsonResponse([
+            "data" => 'success'
+        ]);
+    }
+
+    #[Post('/admin/manage-admin')]
+    public function manageAdminRole(FirebaseService $fireBase, Request $request): JsonResponse {
+        $body = json_decode($request->getContent());
+        $uid = $body->uid;
+        $action = $body->action;
+
+        $fireBase->manageAdminRole($uid, $action);
 
         return new JsonResponse([
             "data" => 'success'

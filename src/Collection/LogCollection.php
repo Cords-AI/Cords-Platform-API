@@ -68,6 +68,7 @@ class LogCollection extends AbstractCollection
             'createdDate', 'postalCode', 'country', 'filters'];
         if ($this->isAdmin) {
             $fieldsToFetch[] = 'email';
+            $this->addTextFieldFilter('email', $this->qb);
         }
 
         $fields = implode(', ', $fieldsToFetch);
@@ -107,7 +108,16 @@ class LogCollection extends AbstractCollection
         if (!empty($this->search)) {
             $search = $this->search;
             $search = "%$search%";
-            $this->qb->andWhere('log.searchString LIKE :search')
+
+            $orX = $this->qb->expr()->orX(
+                $this->qb->expr()->like('log.searchString', ':search')
+            );
+
+            if ($this->isAdmin) {
+                $orX->add($this->qb->expr()->like('log.email', ':search'));
+            }
+
+            $this->qb->andWhere($orX)
                 ->setParameter('search', $search);
         }
 

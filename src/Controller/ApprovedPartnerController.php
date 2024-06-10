@@ -89,7 +89,16 @@ class ApprovedPartnerController extends AbstractController
             ))
             ->setParameter('uid', $uid);
 
-        return new JsonResponse(["data" => $queryBuilder->getQuery()->getResult()]);
+        $keys = $queryBuilder->getQuery()->getResult();
+
+        $formatted = $request->get('select-formatted');
+
+        if ($formatted === 'true') {
+            $formattedKeys = array_map(fn($key) => ['label' => $key->getApiKey(), 'value' => $key->getId()], $keys);
+            return new JsonResponse(["data" => $formattedKeys]);
+        }
+
+        return new JsonResponse(["data" => $keys]);
     }
 
     #[Get('/partner/approved/api-key/{id}')]

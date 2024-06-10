@@ -91,13 +91,6 @@ class LogCollection extends AbstractCollection
                 ->setParameter('provinces', $provinces);
         }
 
-        if (!empty($this->filters['api-key'])) {
-            $apiKeyMatch = $this->filters['api-key'];
-            $apiKeyMatch = "%$apiKeyMatch%";
-            $this->qb->andWhere('log.apiKey LIKE :apiKeyMatch')
-                ->setParameter('apiKeyMatch', $apiKeyMatch);
-        }
-
         if (!empty($this->filters['search-term'])) {
             $searchString = $this->filters['search-term'];
             $searchString = "%$searchString%";
@@ -154,13 +147,27 @@ class LogCollection extends AbstractCollection
                 ->setParameter('endDate', $endDate);
         }
 
-        if (!empty($this->filters['key-type'])) {
-            $keyTypes = explode(',', $this->filters['key-type']);
-            $this->qb->leftJoin(ApiKey::class, 'apiKeyTable', 'WITH', 'log.apiKey = apiKeyTable.apiKey')
-                ->andWhere('apiKeyTable.type IN(:keyTypes)')
-                ->andWhere('apiKeyTable.uid = :uid')
-                ->setParameter('keyTypes', $keyTypes)
-                ->setParameter('uid', $this->userUid);
+
+        if (!empty($this->filters['key-type']) || !empty($this->filters['api-key'])) {
+            $this->qb->leftJoin(ApiKey::class, 'apiKeyTable', 'WITH', 'log.apiKey = apiKeyTable.apiKey');
+
+            if (!empty($this->filters['key-type'])) {
+                $keyTypes = explode(',', $this->filters['key-type']);
+                $this->qb->andWhere('apiKeyTable.type IN(:keyTypes)')
+                    ->setParameter('keyTypes', $keyTypes);
+            }
+
+            if (!empty($this->filters['api-key'])) {
+                $apiKeys = explode(',', $this->filters['api-key']);
+                $this->qb->andWhere('apiKeyTable.id IN(:apiKeys)')
+                    ->setParameter('apiKeys', $apiKeys);
+            }
+
+            if (!$this->isAdmin) {
+                $this->qb->andWhere('apiKeyTable.uid = :uid')
+                    ->setParameter('uid', $this->userUid);
+            }
+
         }
 
         $direction = $this->descending ? 'DESC' : 'ASC';

@@ -6,10 +6,12 @@ use App\Collection\AccountCollection;
 use App\Dto\Admin\AccountData;
 use App\Dto\Admin\UserData;
 use App\Entity\Account;
+use App\Entity\ApiKey;
 use App\Repository\AccountRepository;
 use App\RequestParams\StatusParams;
 use App\Service\FirebaseService;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\Persistence\ManagerRegistry;
 use FOS\RestBundle\Controller\Annotations\Get;
 use FOS\RestBundle\Controller\Annotations\Post;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -91,5 +93,21 @@ class AdminController extends AbstractController
         return new JsonResponse([
             "data" => 'success'
         ]);
+    }
+
+    #[Get('/admin/api-keys')]
+    public function getAllApiKeys(ManagerRegistry $doctrine, Request $request): JsonResponse
+    {
+        $apiKeyRepository = $doctrine->getRepository(ApiKey::class);
+        $keys = $apiKeyRepository->findAll();
+
+        $formatted = $request->get('select-formatted');
+
+        if ($formatted === 'true') {
+            $formattedKeys = array_map(fn($key) => ['label' => $key->getApiKey(), 'value' => $key->getId()], $keys);
+            return new JsonResponse(["data" => $formattedKeys]);
+        }
+
+        return new JsonResponse(["data" => $keys]);
     }
 }

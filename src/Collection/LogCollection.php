@@ -194,6 +194,9 @@ class LogCollection extends AbstractCollection
     protected function setHeaders(): void
     {
         $this->exportHeaders[] = 'API key';
+        if ($this->isAdmin) {
+            $this->exportHeaders[] = 'Account';
+        }
         $this->exportHeaders[] = 'Type';
         $this->exportHeaders[] = 'Query';
         $this->exportHeaders[] = 'Postal Code';
@@ -211,6 +214,9 @@ class LogCollection extends AbstractCollection
         /** @var Log $log */
         foreach ($this->collection as $log) {
             $currentRow['API key'] = $log->getApiKey();
+            if ($this->isAdmin) {
+                $currentRow['Account'] = $log->getEmail();
+            }
             $currentRow['Type'] = $log->getType();
             $currentRow['Query'] = $log->getSearchString();
             $currentRow['Postal Code'] = $log->getPostalCode();

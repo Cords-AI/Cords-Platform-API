@@ -165,7 +165,11 @@ class LogCollection extends AbstractCollection
 
         $direction = $this->descending ? 'DESC' : 'ASC';
 
-        $this->qb->orderBy("TRIM(log.$this->sort)", $direction);
+        if ($this->sort === 'longitude' || $this->sort === 'latitude') {
+            $this->qb->orderBy("CAST(TRIM(log.$this->sort) AS DOUBLE)", $direction);
+        } else {
+            $this->qb->orderBy("TRIM(log.$this->sort)", $direction);
+        }
 
         // paginate
         $query = $this->qb->getQuery();

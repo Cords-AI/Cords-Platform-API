@@ -19,6 +19,10 @@ jobs:
       FIREBASE_SERVICE_URL: http://firebase-service:3000
       DATABASE_URL: mysql://root@partners_db:3306/partners?serverVersion=8.0&charset=utf8mb4
       SENTRY_DSN: https://24ddf8367cdabdf6efa403dce1dfa187@o4504168857927680.ingest.us.sentry.io/4507124314734592
+      ADMIN_EMAIL: akaats@findhelp.ca
+      CORDS_ADMIN_FRONTEND_URL: admin.cords.ai
+      FROM_EMAIL: noreply@cords.ai
+
     steps:
       - uses: actions/checkout@v2
         with:

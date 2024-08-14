@@ -5,9 +5,11 @@ namespace App\Entity;
 use App\Repository\ApiKeyRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use JsonSerializable;
 
+#[ORM\HasLifecycleCallbacks]
 #[ORM\Entity(repositoryClass: ApiKeyRepository::class)]
 class ApiKey implements JsonSerializable
 {
@@ -40,6 +42,9 @@ class ApiKey implements JsonSerializable
 
     #[ORM\OneToMany(mappedBy: 'apiKey', targetEntity: EnabledIp::class)]
     private Collection $enabledIps;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    private ?\DateTimeInterface $created_date = null;
 
     public function __construct()
     {
@@ -192,6 +197,21 @@ class ApiKey implements JsonSerializable
             if ($enabledIp->getApiKey() === $this) {
                 $enabledIp->setApiKey(null);
             }
+        }
+
+        return $this;
+    }
+
+    public function getCreatedDate(): ?\DateTimeInterface
+    {
+        return $this->created_date;
+    }
+
+    #[ORM\PrePersist]
+    public function setCreatedDate(): static
+    {
+        if ($this->created_date === null) {
+            $this->created_date = new \DateTime();
         }
 
         return $this;

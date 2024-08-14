@@ -37,6 +37,10 @@ class PublicController extends AbstractController
             return new JsonResponse(null, 403);
         }
 
+        if ($key->isExpired()) {
+            return new JsonResponse(["error" => "API key expired"], 403);
+        }
+
         return new JsonResponse(null, 200);
     }
 

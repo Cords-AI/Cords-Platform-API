@@ -93,19 +93,6 @@ class ApiKey implements JsonSerializable
         return $this;
     }
 
-    public function jsonSerialize(): mixed
-    {
-        return [
-            "id" => $this->id,
-            "uid" => $this->uid,
-            "apiKey" => $this->apiKey,
-            "name" => $this->name,
-            "type" => $this->type,
-            "enabledUrls" => $this->enabledUrls->getValues() ?? [],
-            "enabledIps" => $this->enabledIps->getValues() ?? [],
-        ];
-    }
-
     public function getAccount(): ?Account
     {
         return $this->account;
@@ -215,5 +202,37 @@ class ApiKey implements JsonSerializable
         }
 
         return $this;
+    }
+
+    public function getExpirationDate()
+    {
+        $result = clone $this->getCreatedDate();
+        $result->modify('+60 days');
+        return $result;
+    }
+
+    public function isExpired(): bool
+    {
+        if($this->getType() === "production") {
+            return false;
+        }
+
+        $expirationDate = $this->getExpirationDate();
+        return \App\Utils\Util::isExpired($expirationDate);
+    }
+
+    public function jsonSerialize(): mixed
+    {
+        return [
+            "id" => $this->id,
+            "uid" => $this->uid,
+            "apiKey" => $this->apiKey,
+            "name" => $this->name,
+            "type" => $this->type,
+            "enabledUrls" => $this->enabledUrls->getValues() ?? [],
+            "enabledIps" => $this->enabledIps->getValues() ?? [],
+            "expirationDate" => $this->getExpirationDate(),
+            "isExpired" => $this->isExpired()
+        ];
     }
 }

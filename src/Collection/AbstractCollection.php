@@ -2,6 +2,7 @@
 
 namespace App\Collection;
 
+use Doctrine\DBAL\Connection;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use Shuchkin\SimpleXLSXGen;
@@ -30,13 +31,16 @@ abstract class AbstractCollection
 
     protected array $exportHeaders = [];
 
-    public function __construct(ManagerRegistry $doctrine)
+    protected Connection $connection;
+
+    public function __construct(ManagerRegistry $doctrine, Connection $connection)
     {
         $this->doctrine = $doctrine;
 
         $em = $this->doctrine->getManager();
         /** @var QueryBuilder $qb */
         $this->qb = $em->createQueryBuilder();
+        $this->connection = $connection;
     }
 
     public function limit($limit): self

@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\LogRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -46,9 +48,16 @@ class Log implements \JsonSerializable
 
     #[ORM\Column(length: 500, nullable: true)]
     private ?string $email = null;
-    #
-    #[ORM\Column(type: 'json')]
-    private ?array $filters = null;
+
+    #[ORM\OneToMany(mappedBy: 'log', targetEntity: SearchFilter::class)]
+    private Collection $searchFilters;
+
+    private ?array $queriedFilters;
+
+    public function __construct()
+    {
+        $this->searchFilters = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -159,21 +168,9 @@ class Log implements \JsonSerializable
     public function setEmail(?string $email): static
     {
         $this->email = $email;
-        
-        return $this;
-
-    }
-
-    public function getFilters(): ?array
-    {
-        return $this->filters;
-    }
-
-    public function setFilters(?array $filters): static
-    {
-        $this->filters = $filters;
 
         return $this;
+
     }
 
     public function getPostalCode(): ?string
@@ -200,6 +197,17 @@ class Log implements \JsonSerializable
         return $this;
     }
 
+    public function setQueriedFilters(?array $queriedFilters): static
+    {
+        $this->queriedFilters = $queriedFilters;
+        return $this;
+    }
+
+    public function getQueriedFilters(): array
+    {
+        return $this->queriedFilters ?? [];
+    }
+
     public function jsonSerialize(): mixed
     {
         return [
@@ -212,9 +220,39 @@ class Log implements \JsonSerializable
             'type' => $this->type,
             'createdDate' => $this->createdDate,
             'email' => $this->email ?? '',
-            'filters' => $this->filters ?? [],
+            'filters' => $this->getQueriedFilters(),
             'country' => $this->country,
             'postalCode' => $this->postalCode,
         ];
+    }
+
+    /**
+     * @return Collection<int, SearchFilter>
+     */
+    public function getSearchFilters(): Collection
+    {
+        return $this->searchFilters;
+    }
+
+    public function addSearchFilter(SearchFilter $searchFilter): static
+    {
+        if (!$this->searchFilters->contains($searchFilter)) {
+            $this->searchFilters->add($searchFilter);
+            $searchFilter->setLog($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSearchFilter(SearchFilter $searchFilter): static
+    {
+        if ($this->searchFilters->removeElement($searchFilter)) {
+            // set the owning side to null (unless already changed)
+            if ($searchFilter->getLog() === $this) {
+                $searchFilter->setLog(null);
+            }
+        }
+
+        return $this;
     }
 }

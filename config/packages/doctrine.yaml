@@ -25,6 +25,10 @@ doctrine:
         dql:
             string_functions:
                 JSON_CONTAINS: Scienta\DoctrineJsonFunctions\Query\AST\Functions\Mysql\JsonContains
+                JSON_EXTRACT: Scienta\DoctrineJsonFunctions\Query\AST\Functions\Mysql\JsonExtract
+                JSON_UNQUOTE: Scienta\DoctrineJsonFunctions\Query\AST\Functions\Mysql\JsonUnquote
+                JSON_LENGTH: Scienta\DoctrineJsonFunctions\Query\AST\Functions\Mysql\JsonLength
+                GROUP_CONCAT: DoctrineExtensions\Query\Mysql\GroupConcat
                 CAST: DoctrineExtensions\Query\Mysql\Cast
 
 when@test:

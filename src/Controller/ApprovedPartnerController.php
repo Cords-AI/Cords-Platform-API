@@ -8,6 +8,7 @@ use App\Entity\ApiKey;
 use App\Entity\EnabledIp;
 use App\Entity\EnabledUrl;
 use App\Repository\EnabledIpRepository;
+use App\Utils\ClientContext;
 use Doctrine\ORM\EntityManagerInterface;
 use FOS\RestBundle\Controller\Annotations\Delete;
 use FOS\RestBundle\Controller\Annotations\Get;
@@ -218,7 +219,7 @@ class ApprovedPartnerController extends AbstractController
     }
 
     #[Get('/partner/approved/report')]
-    public function getReport(Request $request, LogCollection $logCollection): JsonResponse
+    public function getReport(Request $request, LogCollection $logCollection, ClientContext $clientContext): JsonResponse
     {
         $filters = $request->get('filters');
 
@@ -233,6 +234,7 @@ class ApprovedPartnerController extends AbstractController
             ->filters($filters)
             ->page($page)
             ->search($search)
+            ->clientLang($clientContext->langCode)
             ->sort($request->get('sort-by'), $request->get('descending'))
             ->fetchRows();
 

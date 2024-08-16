@@ -4,9 +4,12 @@ namespace App\Collection;
 
 use App\Entity\ApiKey;
 use App\Entity\Log;
+use App\Entity\SearchFilter;
+use App\Entity\Translation;
 use DateTime;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\ORM\Tools\Pagination\Paginator;
+use Symfony\Component\Yaml\Yaml;
 
 class LogCollection extends AbstractCollection
 {
@@ -17,6 +20,10 @@ class LogCollection extends AbstractCollection
     protected int $limit = 25;
 
     private array $filters = [];
+
+    private string $clientLang = 'en';
+
+    private int $maxTranslationsLength = 0;
 
     private function getOffset(): int {
         return ($this->page - 1) * $this->limit;
@@ -62,18 +69,43 @@ class LogCollection extends AbstractCollection
         return $this;
     }
 
+    public function clientLang(?string $clientLang): self
+    {
+        if ($clientLang) {
+            $this->clientLang = $clientLang;
+        }
+        return $this;
+    }
+
     public function fetchRows(): array
     {
+        $this->addTempTranslationTable();
+
         $fieldsToFetch = ['id', 'apiKey', 'ip', 'searchString', 'latitude', 'longitude', 'province', 'type',
-            'createdDate', 'postalCode', 'country', 'filters'];
+            'createdDate', 'postalCode', 'country'];
         if ($this->isAdmin) {
             $fieldsToFetch[] = 'email';
             $this->addTextFieldFilter('email', $this->qb);
         }
 
+        $searchFiltersSubQuery = $this->qb->getEntityManager()->createQueryBuilder()
+            ->select("CONCAT(
+                              '[',
+                              GROUP_CONCAT(
+                                  CONCAT('\"', translation.value, '\"')
+                                  ORDER BY translation.value ASC
+                              ),
+                              ']'
+                            )")
+            ->from(SearchFilter::class, 'searchFilterTable')
+            ->leftJoin(Translation::class, 'translation', 'WITH',
+                "searchFilterTable.name = translation.translationKey AND translation.lang = '{$this->clientLang}'")
+            ->where('searchFilterTable.log = log.id')
+            ->getDQL();
+
         $fields = implode(', ', $fieldsToFetch);
 
-        $this->qb->select("partial log.{ $fields }")
+        $this->qb->select("partial log.{ $fields }, ($searchFiltersSubQuery) as searchFilterNames")
             ->from(Log::class, 'log');
 
         if (!$this->isAdmin) {
@@ -112,19 +144,6 @@ class LogCollection extends AbstractCollection
 
             $this->qb->andWhere($orX)
                 ->setParameter('search', $search);
-        }
-
-        if (!empty($this->filters['filters'])) {
-            $filters = explode(',', $this->filters['filters']);
-            $orX = $this->qb->expr()->orX();
-
-            foreach ($filters as $index => $filter) {
-                $orX->add($this->qb->expr()->eq("JSON_CONTAINS(log.filters, :jsonValue{$index})", '1'));
-                $filterValue = $filter === "211" ? $filter : json_encode($filter);
-                $this->qb->setParameter("jsonValue{$index}", $filterValue);
-            }
-
-            $this->qb->andWhere($orX);
         }
 
         $this->addTextFieldFilter('postal-code', $this->qb);
@@ -174,6 +193,13 @@ class LogCollection extends AbstractCollection
 
         if ($this->sort === 'longitude' || $this->sort === 'latitude') {
             $this->qb->orderBy("CAST(TRIM(log.$this->sort) AS DOUBLE)", $direction);
+        } else if ($this->sort === 'filters') {
+            $index = 0;
+            while ($index <= $this->maxTranslationsLength) {
+                $this->qb->addOrderBy("JSON_UNQUOTE(JSON_EXTRACT(CAST(searchFilterNames AS JSON), '$[$index]'))", $direction);
+                $index++;
+            }
+            $this->qb->addOrderBy("log.createdDate", $direction);
         } else {
             $this->qb->orderBy("TRIM(log.$this->sort)", $direction);
         }
@@ -186,12 +212,42 @@ class LogCollection extends AbstractCollection
         $this->total = count($paginator);
         $rows = [];
         foreach ($paginator as $row) {
-            $rows[] = $row;
+            $rows[] = current($row)->setQueriedFilters(json_decode($row['searchFilterNames']));
         }
 
         // return
         $this->collection = $rows;
         return $this->collection;
+    }
+
+    private function addTempTranslationTable() {
+        $tableCreateSql = "CREATE TEMPORARY TABLE `translation` (
+                    `id` int NOT NULL AUTO_INCREMENT,
+                    `translation_key` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+                    `value` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+                    `lang` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+                    PRIMARY KEY (`id`)
+                ) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+        ";
+
+        $this->connection->executeStatement($tableCreateSql);
+
+        $messages = Yaml::parseFile(__DIR__ . "/../../translations/messages.{$this->clientLang}.yaml");
+        $translationKeys = array_keys($messages);
+        $this->maxTranslationsLength = count($translationKeys);
+
+        $insertSql = "INSERT INTO translation (translation_key, value, lang) VALUES";
+
+        foreach (array_keys($messages) as $index => $key) {
+            $messageValue = $messages[$key] ?? '';
+            $insertSql .= "('$key', '$messageValue', '{$this->clientLang}'),";
+
+            if ($index === (count($translationKeys) - 1)) {
+                $insertSql .= "(null, '', 'en'), (null, '', 'fr');";
+            }
+        }
+
+        $this->connection->executeStatement($insertSql);
     }
 
     private function getRelatedApiKeys(): array
@@ -235,7 +291,7 @@ class LogCollection extends AbstractCollection
             $currentRow['Country'] = $log->getCountry();
             $currentRow['Latitude'] = $log->getLatitude();
             $currentRow['Longitude'] = $log->getLongitude();
-            $currentRow['Cords Filters'] = $this->getFormattedFilterNames($log);
+            $currentRow['Cords Filters'] = implode(", ", $log->getQueriedFilters());
             $currentRow['Created Date'] = $log->getCreatedDate() ? $log->getCreatedDate()->format('d/M/Y - G:i:s') : '';
 
             $this->exportableRows[] = $currentRow;
@@ -259,25 +315,5 @@ class LogCollection extends AbstractCollection
         $formattedStr = ucwords($formattedStr);
         $formattedStr = str_replace(' ', '', $formattedStr);
         return lcfirst($formattedStr);
-    }
-
-    private function getFormattedFilterNames(Log $log): string
-    {
-        $names = [
-            '211' => 'Resources',
-            'magnet' => 'Employment',
-            'mentor' => 'Mentoring Opportunities',
-            'prosper' => 'Benefits',
-            'volunteer' => 'Volunteering'
-        ];
-
-        $filters = $log->getFilters() ?? [];
-        $formattedFiltersNames = [];
-
-        foreach ($filters as $filterName) {
-            $formattedFiltersNames[] = $names[$filterName];
-        }
-
-        return implode(", ", $formattedFiltersNames);
     }
 }

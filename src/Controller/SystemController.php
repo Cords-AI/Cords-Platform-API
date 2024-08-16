@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\ApiKey;
 use App\Entity\Log;
+use App\Entity\SearchFilter;
 use App\Service\FirebaseService;
 use Doctrine\Persistence\ManagerRegistry;
 use FOS\RestBundle\Controller\Annotations\Post;
@@ -34,11 +35,22 @@ class SystemController extends AbstractController
         $log->setCountry($body->country);
         $log->setPostalCode($body->postalCode);
         $log->setType($body->type);
-        $log->setFilters($body->filters);
         $log->setCreatedDate(new \DateTime());
         $log->setEmail($associatedAccount->email);
 
         $em = $doctrine->getManager();
+        $em->persist($log);
+        $em->flush();
+
+        foreach ($body->filters as $filter) {
+            $searchFilter = new SearchFilter();
+            $searchFilter->setLog($log);
+            $searchFilter->setLogId($log->getId());
+            $searchFilter->setName($filter);
+            $log->addSearchFilter($searchFilter);
+            $em->persist($searchFilter);
+        }
+
         $em->persist($log);
         $em->flush();
 

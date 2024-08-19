@@ -30,11 +30,17 @@ class PublicController extends AbstractController
 
         $account = $key->getAccount();
 
+        if (!$this->prodKeyHasIpOrReferrerRestrictions($key)) {
+            return new JsonResponse([
+                "error" => "You must add either an IP or Referer restriction to your API key."
+            ], 401);
+        }
+
         $fromValidIp = $this->determineValidIp($key);
         $fromValidUrl = $this->determineValidUrl($key, $request->headers->get('referer'));
 
         if (empty($key) || $account->getStatus() !== 'approved' || !$fromValidUrl || !$fromValidIp) {
-            return new JsonResponse(null, 403);
+            return new JsonResponse(["error" => "Request from invalid source"], 403);
         }
 
         if ($key->isExpired()) {
@@ -73,5 +79,21 @@ class PublicController extends AbstractController
         }
 
         return in_array($_SERVER['HTTP_X_FORWARDED_FOR'], $authorizedIps);
+    }
+
+    private function prodKeyHasIpOrReferrerRestrictions(ApiKey $key): bool
+    {
+        if (!empty($_ENV['ENFORCE_PROD_RESTRICTIONS']) && $_ENV['ENFORCE_PROD_RESTRICTIONS'] === 'FALSE') {
+            return true;
+        }
+        if ($key->getType() !== 'production') {
+            return true;
+        }
+        $validReferrers = $key->getEnabledUrls()->getValues();
+        $enabledIps = $key->getEnabledIps()->getValues();
+        if (count($validReferrers) || count($enabledIps)) {
+            return true;
+        }
+        return false;
     }
 }

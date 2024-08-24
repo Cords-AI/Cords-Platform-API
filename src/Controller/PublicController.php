@@ -58,6 +58,10 @@ class PublicController extends AbstractController
             return true;
         }
 
+        if (empty($referer)) {
+            return false;
+        }
+
         $url = preg_replace("#^https?://#i", "", $referer);
         $url = rtrim($url, '/');
         $pattern = "#(https?://)?$url/?#i";

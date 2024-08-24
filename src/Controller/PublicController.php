@@ -82,7 +82,10 @@ class PublicController extends AbstractController
             return true;
         }
 
-        return in_array($_SERVER['HTTP_X_FORWARDED_FOR'], $authorizedIps);
+        $forwardedFor = explode(",", $_SERVER['HTTP_X_FORWARDED_FOR']);
+        $forwardedFor = current($forwardedFor);
+
+        return in_array($forwardedFor, $authorizedIps);
     }
 
     private function prodKeyHasIpOrReferrerRestrictions(ApiKey $key): bool

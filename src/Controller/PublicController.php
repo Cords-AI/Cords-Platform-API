@@ -64,7 +64,7 @@ class PublicController extends AbstractController
 
         $url = preg_replace("#^https?://#i", "", $referer);
         $url = rtrim($url, '/');
-        $pattern = "#(https?://)?$url/?#i";
+        $pattern = "#^(https?://)?(www\.)?$url(/|$)#i";
 
         foreach ($validReferrers as $validReferrer) {
             if (preg_match($pattern, $validReferrer) === 1) {

@@ -30,14 +30,16 @@ class PublicController extends AbstractController
 
         $account = $key->getAccount();
 
-        if (!$this->prodKeyHasIpOrReferrerRestrictions($key)) {
+        $referer = $request->headers->get('referer');
+
+        if (!$this->prodKeyHasIpOrReferrerRestrictions($key, $referer)) {
             return new JsonResponse([
                 "error" => "You must add either an IP or Referer restriction to your API key."
             ], 401);
         }
 
         $fromValidIp = $this->determineValidIp($key);
-        $fromValidUrl = $this->determineValidUrl($key, $request->headers->get('referer'));
+        $fromValidUrl = $this->determineValidUrl($key, $referer);
 
         if (empty($key) || $account->getStatus() !== 'approved' || !$fromValidUrl || !$fromValidIp) {
             return new JsonResponse(["error" => "Request from invalid source"], 403);
@@ -60,6 +62,10 @@ class PublicController extends AbstractController
 
         if (empty($referer)) {
             return false;
+        }
+
+        if (!empty($_ENV['WHITELISTED_URL'])) {
+            $validReferrers[] = $_ENV['WHITELISTED_URL'];
         }
 
         $url = preg_replace("#^https?://#i", "", $referer);
@@ -88,12 +94,15 @@ class PublicController extends AbstractController
         return in_array($forwardedFor, $authorizedIps);
     }
 
-    private function prodKeyHasIpOrReferrerRestrictions(ApiKey $key): bool
+    private function prodKeyHasIpOrReferrerRestrictions(ApiKey $key, $referer): bool
     {
         if (!empty($_ENV['ENFORCE_PROD_RESTRICTIONS']) && $_ENV['ENFORCE_PROD_RESTRICTIONS'] === 'FALSE') {
             return true;
         }
         if ($key->getType() !== 'production') {
+            return true;
+        }
+        if (!empty($_ENV['WHITELISTED_URL']) && $referer === $_ENV['WHITELISTED_URL']) {
             return true;
         }
         $validReferrers = $key->getEnabledUrls()->getValues();

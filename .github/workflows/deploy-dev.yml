@@ -22,7 +22,7 @@ jobs:
       ADMIN_EMAIL: akaats@findhelp.ca
       CORDS_ADMIN_FRONTEND_URL: admin.cords.dev
       FROM_EMAIL: noreply@cords.ai
-
+      ENFORCE_PROD_RESTRICTIONS: TRUE
     steps:
       - uses: actions/checkout@v2
         with:

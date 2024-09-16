@@ -7,7 +7,7 @@ on:
 
 jobs:
   Deploy:
-    runs-on: backend-dev 
+    runs-on: backend-dev
     env:
       ROUTERNAME: cords-partners-backend
       HOSTNAME: partners.backend.cords.dev
@@ -23,6 +23,7 @@ jobs:
       CORDS_ADMIN_FRONTEND_URL: admin.cords.dev
       FROM_EMAIL: noreply@cords.ai
       ENFORCE_PROD_RESTRICTIONS: TRUE
+      WHITELISTED_URL: cords-widget.pages.dev
     steps:
       - uses: actions/checkout@v2
         with:

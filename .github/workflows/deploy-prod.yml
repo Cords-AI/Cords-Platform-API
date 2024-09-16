@@ -23,6 +23,7 @@ jobs:
       CORDS_ADMIN_FRONTEND_URL: admin.cords.ai
       FROM_EMAIL: noreply@cords.ai
       ENFORCE_PROD_RESTRICTIONS: FALSE
+      WHITELISTED_URL: cords-widget.pages.dev
     steps:
       - uses: actions/checkout@v2
         with:

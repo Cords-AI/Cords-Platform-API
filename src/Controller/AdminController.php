@@ -46,9 +46,10 @@ class AdminController extends AbstractController
     public function getUserRequest(
         AccountCollection $collection,
         AccountRepository $repository,
+        FirebaseService $firebase,
         $id
     ): JsonResponse {
-        $collection->execute();
+        $collection->execute([$firebase->getUser($id)]);
         $rows = $collection->getRows();
 
         $firebaseUser = current(array_filter($rows, fn($row) => $row->uid === $id));

@@ -74,14 +74,16 @@ class AccountCollection implements CollectionInterface
         return $this;
     }
 
-    public function execute(): void
+    public function execute($rows = null): void
     {
         $em = $this->doctrine->getManager();
         /** @var \App\Repository\AccountRepository $repository */
         $repository = $em->getRepository(Account::class);
         $accounts = $repository->findAll();
 
-        $rows = $this->firebase->getUsers();
+        if(empty($rows)) {
+            $rows = $this->firebase->getUsers();
+        }
 
         $correspondingAccounts = [];
 

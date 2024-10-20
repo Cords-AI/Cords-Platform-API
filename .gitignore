@@ -16,3 +16,6 @@ docker-compose.override.yml
 /.php-cs-fixer.php
 /.php-cs-fixer.cache
 ###< friendsofphp/php-cs-fixer ###
+node_modules
+.env.test
+api-tests/response.json

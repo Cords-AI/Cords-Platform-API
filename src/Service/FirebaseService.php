@@ -23,6 +23,13 @@ class FirebaseService
         $this->baseUrl = $_ENV['FIREBASE_SERVICE_URL'];
     }
 
+    public function getUser($id)
+    {
+        $result = $this->client->request('GET', "{$this->baseUrl}/users/$id");
+        $body = json_decode($result->getContent());
+        return $body;
+    }
+
     public function getUsers(): array
     {
         $result = $this->client->request('GET', "{$this->baseUrl}/users");

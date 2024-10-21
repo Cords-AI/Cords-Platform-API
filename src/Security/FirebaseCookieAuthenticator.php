@@ -29,7 +29,9 @@ class FirebaseCookieAuthenticator extends AbstractAuthenticator
         if (str_starts_with($uri, "/system")) {
             return false;
         }
-        return !empty($request->headers->get('cookie'));
+        $noApiKeyHeaderPresent = empty($request->headers->get('x-api-key'));
+        $userAlreadySignedIn = !empty($request->cookies->get('session'));
+        return !empty($request->headers->get('cookie')) && ($noApiKeyHeaderPresent || $userAlreadySignedIn);
     }
 
     public function authenticate(Request $request): Passport

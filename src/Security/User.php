@@ -4,6 +4,7 @@ namespace App\Security;
 
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
+use stdClass;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 class User implements UserInterface
@@ -60,6 +61,37 @@ class User implements UserInterface
 
         if (!empty($decoded->admin)) {
             $user->isAdmin = $decoded->admin;
+        }
+
+        return $user;
+    }
+
+    public static function createFromFireBaseUser(?stdClass $fireBaseUser): ?User
+    {
+        $user = new User();
+
+        if (!$fireBaseUser) {
+            return null;
+        }
+
+        $user->id = $fireBaseUser->uid;
+        $user->email = $fireBaseUser->email;
+
+        if ($fireBaseUser->emailVerified) {
+            $user->emailVerified = true;
+        }
+
+        if (!empty($fireBaseUser->displayName)) {
+            $user->name = $fireBaseUser->displayName;
+            $user->initials = User::computeInitials($fireBaseUser->displayName);
+        } else {
+            $user->initials = strtoupper(substr($fireBaseUser->email, 0, 1));
+        }
+
+        $user->avatar = $fireBaseUser->photoURL ?? null;
+
+        if (!empty($fireBaseUser->customClaims->admin)) {
+            $user->isAdmin = $fireBaseUser->customClaims->admin;
         }
 
         return $user;

@@ -3,6 +3,7 @@ security:
     main:
       stateless: true
       custom_authenticators:
+        - App\Security\APIKeyAuthenticator
         - App\Security\FirebaseCookieAuthenticator
         - App\Security\SystemAuthenticator
   access_control:

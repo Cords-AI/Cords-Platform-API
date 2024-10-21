@@ -19,9 +19,9 @@ jobs:
       CORS_ALLOW_ORIGIN: .*.cords.dev
       FIREBASE_SERVICE_URL: http://firebase-service:3000
       SENTRY_DSN: https://24ddf8367cdabdf6efa403dce1dfa187@o4504168857927680.ingest.us.sentry.io/4507124314734592
-      ADMIN_EMAIL: akaats@findhelp.ca
+      ADMIN_EMAIL: accounts@cords.ai
       CORDS_ADMIN_FRONTEND_URL: admin.cords.dev
-      FROM_EMAIL: noreply@cords.ai
+      FROM_EMAIL: "Accounts | CORDS <communications@cords.ai>"
       ENFORCE_PROD_RESTRICTIONS: TRUE
       WHITELISTED_URL: cords-widget.pages.dev
     steps:

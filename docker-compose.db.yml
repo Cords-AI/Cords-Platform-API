@@ -1,0 +1,10 @@
+services:
+  db:
+    hostname: $COMPOSE_PROJECT_NAME-db
+    image: mysql:8.0.28
+    platform: linux/x86_64
+    volumes:
+      - ./data:/var/lib/mysql
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD=TRUE
+    restart: unless-stopped

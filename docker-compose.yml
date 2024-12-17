@@ -17,6 +17,6 @@ services:
     restart: unless-stopped
     labels:
       - traefik.enable=true
-      - traefik.http.routers.$ROUTERNAME.rule=Host(`$HOSTNAME`)
-      - traefik.http.routers.$ROUTERNAME.tls=true
-      - traefik.http.services.$ROUTERNAME.loadbalancer.server.port=80
+      - traefik.http.routers.$COMPOSE_PROJECT_NAME.rule=Host(`$TRAEFIK_HOSTNAME`)
+      - traefik.http.routers.$COMPOSE_PROJECT_NAME.tls=true
+      - traefik.http.services.$COMPOSE_PROJECT_NAME.loadbalancer.server.port=80

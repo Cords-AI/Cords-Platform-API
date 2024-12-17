@@ -19,3 +19,4 @@ docker-compose.override.yml
 node_modules
 .env.test
 api-tests/response.json
+/data

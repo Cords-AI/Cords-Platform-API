@@ -23,9 +23,8 @@ class Util
     public static function keyHasIpOrReferrerRestrictions(ApiKey $key, $referer): bool
     {
         $keyIsPlatformType = $key->getType() === 'platform';
-        $productionRestrictionsDisabled = (!empty($_ENV['ENFORCE_PROD_RESTRICTIONS']) && $_ENV['ENFORCE_PROD_RESTRICTIONS'] === 'FALSE');
 
-        if ($productionRestrictionsDisabled && !$keyIsPlatformType) {
+        if (!$keyIsPlatformType) {
             return true;
         }
         if ($key->getType() === 'dev') {

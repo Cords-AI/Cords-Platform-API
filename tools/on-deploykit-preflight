@@ -1,0 +1,11 @@
+#!/bin/bash
+set -e
+export SKIP_POST_DEPLOY=TRUE
+export COMPOSE_FILE=docker-compose.yml:docker-compose.db.yml
+export APP_ENV=prod
+export DATABASE_URL="mysql://root@$COMPOSE_PROJECT_NAME-db:3306/partners?serverVersion=8.0&charset=utf8mb4"
+export FIREBASE_SERVICE_URL=http://cords-firebase-service-$ENV_NAME:3000
+export SENTRY_DSN=https://24ddf8367cdabdf6efa403dce1dfa187@o4504168857927680.ingest.us.sentry.io/4507124314734592
+export ADMIN_EMAIL=accounts@cords.ai
+export FROM_EMAIL="Accounts | CORDS <communications@cords.ai>"
+export WHITELISTED_URL=cords-widget.pages.dev

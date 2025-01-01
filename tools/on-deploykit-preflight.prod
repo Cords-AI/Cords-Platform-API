@@ -1,0 +1,7 @@
+#!/bin/bash
+
+export TRAEFIK_HOSTNAME=partners-api.cords.ai
+export CLIENT_HOSTNAME=partners.cords.ai
+export COOKIE_DOMAIN=.cords.ai
+export CORS_ALLOW_ORIGIN=.*.cords.ai
+export CORDS_ADMIN_FRONTEND_URL=admin.cords.ai

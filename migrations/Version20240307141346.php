@@ -18,6 +18,9 @@ final class Version20240307141346 extends AbstractMigration
         $firebase = new FirebaseService(HttpClient::create());
         $rows = $firebase->getUsers();
         $uids = array_map(fn($row) => $row->uid, $rows);
+        if(!count($uids)) {
+            return;
+        }
 
         $placeholders = array_fill(0, count($uids), '(?)');
         $placeholdersString = implode(', ', $placeholders);

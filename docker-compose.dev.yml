@@ -1,0 +1,7 @@
+services:
+  db:
+    volumes:
+      - data:/var/lib/mysql
+
+volumes:
+  data:

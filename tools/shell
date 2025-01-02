@@ -6,7 +6,7 @@ fi
 
 COMMAND=$@
 if [ -z "$COMMAND" ]; then
-  docker compose exec -u $DOCKER_USER web /bin/bash
+  docker compose exec -u $DOCKER_USER app /bin/bash
 else
-  docker compose exec -u $DOCKER_USER web $COMMAND
+  docker compose exec -u $DOCKER_USER app $COMMAND
 fi

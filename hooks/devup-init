@@ -1,0 +1,18 @@
+#!/bin/bash
+
+export COMPOSE_PROJECT_NAME="$ORG_NAME-$PROJECT_NAME-$ENV_NAME"
+export COMPOSE_FILE="docker-compose.yml:docker-compose.db.yml:docker-compose.dev.yml"
+export TRAEFIK_HOSTNAME="$PROJECT_NAME.$ORG_NAME.$BASE_URL"
+export APP_ENV="dev"
+export APP_SECRET="$(pwgen 32 1)"
+export CORS_ALLOW_ORIGIN=".*"
+export COOKIE_DOMAIN=".$ORG_NAME.$BASE_URL"
+export DATABASE_URL="mysql://root@$ORG_NAME-$PROJECT_NAME-$ENV_NAME-db:3306/partners?serverVersion=8.0&charset=utf8mb4"
+export FIREBASE_SERVICE_URL="http://$ORG_NAME-firebase-service-$ENV_NAME:3000"
+export SYSTEM_TOKEN="$SYSTEM_TOKEN"
+export SENTRY_DSN=""
+export SENDGRID_KEY=""
+export ADMIN_EMAIL=""
+export CORDS_ADMIN_FRONTEND_URL="admin.$ORG_NAME.$BASE_URL"
+export FROM_EMAIL=""
+export WHITELISTED_URL=""

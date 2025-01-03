@@ -5,8 +5,11 @@ on:
 
   push:
     branches:
-      - release/dev
+      - release/*
 
 jobs:
   Call-DeployKit-Deploy:
     uses: Cords-Connect/DeployKit/.github/workflows/deploy.yml@main
+    with:
+      runner: host
+      org_name: cords

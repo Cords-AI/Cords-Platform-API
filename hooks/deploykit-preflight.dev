@@ -1,0 +1,5 @@
+export TRAEFIK_HOSTNAME=partners-api.cords.dev
+export CLIENT_HOSTNAME=partners.cords.dev
+export COOKIE_DOMAIN=.cords.dev
+export CORS_ALLOW_ORIGIN=.*.cords.dev
+export CORDS_ADMIN_FRONTEND_URL=admin.cords.dev

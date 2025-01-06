@@ -36,3 +36,9 @@ function getHeaders() {
     "cookie": process.env.COOKIE
   }
 }
+
+test('getTerm', async() => {
+  const response = await fetch("/term/terms-of-use");
+
+  expect(response.status).toBe(200);
+});

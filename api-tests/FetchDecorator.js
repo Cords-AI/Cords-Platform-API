@@ -8,7 +8,7 @@ module.exports = async function request(url, options = {}) {
     fs.truncateSync(responseFile, 0);
   }
 
-  const response = await fetch(`${process.env.BASE_URL}${url}`, options);
+  const response = await fetch(`${process.env.APP_URL}${url}`, options);
   const status = response.status;
   const headers = Object.fromEntries(response.headers)
   let body;

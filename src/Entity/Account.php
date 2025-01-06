@@ -24,9 +24,13 @@ class Account
     #[ORM\OneToOne(cascade: ['persist', 'remove'], fetch: 'EAGER')]
     private ?Profile $profile = null;
 
+    #[ORM\OneToMany(mappedBy: 'account', targetEntity: Agreement::class)]
+    private Collection $agreements;
+
     public function __construct()
     {
         $this->apiKeys = new ArrayCollection();
+        $this->agreements = new ArrayCollection();
     }
 
     public function getUid(): ?string
@@ -91,6 +95,36 @@ class Account
     public function setProfile(?Profile $profile): static
     {
         $this->profile = $profile;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Agreement>
+     */
+    public function getAgreements(): Collection
+    {
+        return $this->agreements;
+    }
+
+    public function addAgreement(Agreement $agreement): static
+    {
+        if (!$this->agreements->contains($agreement)) {
+            $this->agreements->add($agreement);
+            $agreement->setAccount($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAgreement(Agreement $agreement): static
+    {
+        if ($this->agreements->removeElement($agreement)) {
+            // set the owning side to null (unless already changed)
+            if ($agreement->getAccount() === $this) {
+                $agreement->setAccount(null);
+            }
+        }
 
         return $this;
     }

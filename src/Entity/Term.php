@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\TermRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use JsonSerializable;
@@ -35,6 +37,14 @@ class Term implements JsonSerializable
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $createdDate = null;
+
+    #[ORM\OneToMany(mappedBy: 'term', targetEntity: Agreement::class)]
+    private Collection $agreements;
+
+    public function __construct()
+    {
+        $this->agreements = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -136,5 +146,35 @@ class Term implements JsonSerializable
             "urlFr" => $this->urlFr,
             "createdDate" => $this->createdDate
         ];
+    }
+
+    /**
+     * @return Collection<int, Agreement>
+     */
+    public function getAgreements(): Collection
+    {
+        return $this->agreements;
+    }
+
+    public function addAgreement(Agreement $agreement): static
+    {
+        if (!$this->agreements->contains($agreement)) {
+            $this->agreements->add($agreement);
+            $agreement->setTerm($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAgreement(Agreement $agreement): static
+    {
+        if ($this->agreements->removeElement($agreement)) {
+            // set the owning side to null (unless already changed)
+            if ($agreement->getTerm() === $this) {
+                $agreement->setTerm(null);
+            }
+        }
+
+        return $this;
     }
 }

@@ -14,7 +14,6 @@ use App\Repository\AccountRepository;
 use App\Repository\FilterRepository;
 use App\RequestParams\ProfileParams;
 use App\Utils\ClientContext;
-use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use FOS\RestBundle\Controller\Annotations\Delete;
@@ -129,20 +128,15 @@ class AuthenticatedController extends AbstractController
     }
 
     #[Get('/authenticated/agreements/review')]
-    public function getUnacceptedAgreements(Request $request, Connection $connection, ManagerRegistry $doctrine): JsonResponse
+    public function getUnacceptedAgreements(ManagerRegistry $doctrine): JsonResponse
     {
         $user = $this->getUser();
         $userId = $user->getUserIdentifier();
 
-        $sql = "SELECT term.id
-                FROM term
-                LEFT JOIN agreement
-                ON term.id = agreement.term_id
-                AND agreement.account_uid = '$userId'
-                WHERE agreement.term_id IS NULL 
-                AND term.version = (SELECT MAX(version) FROM term as termInner WHERE termInner.name = term.name)";
+        $accountRepository = $doctrine->getRepository(Account::class);
+        $account = $accountRepository->findOneBy(['uid' => $userId]);
 
-        $unacceptedTermIds = $connection->fetchFirstColumn($sql);
+        $unacceptedTermIds = $account->getUnacceptedAgreementIds();
 
         $termRepository = $doctrine->getRepository(Term::class);
         $missingTerms = $termRepository->findBy(['id' => $unacceptedTermIds]);

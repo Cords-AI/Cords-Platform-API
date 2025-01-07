@@ -19,6 +19,11 @@ class PublicController extends AbstractController
 
         $account = $key->getAccount();
 
+        $account->calculateHasAcceptedTermsOfUse();
+        if (!$account->getHasAcceptedTermsOfUse()) {
+            return new JsonResponse(['error' => "You must accept the latest 'Terms of Use' agreement to use the API"], 401);
+        }
+
         $referer = $request->headers->get('referer');
 
         if (!Util::keyHasIpOrReferrerRestrictions($key, $referer)) {

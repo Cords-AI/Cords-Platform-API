@@ -2,9 +2,11 @@
 
 namespace App\Security;
 
+use App\Entity\Account;
 use App\Service\FirebaseService;
 use App\Utils\Util;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -20,7 +22,8 @@ class APIKeyAuthenticator extends AbstractAuthenticator
 {
 
     public function __construct(
-        private EntityManagerInterface $em
+        private EntityManagerInterface $em,
+        private ManagerRegistry $doctrine
     ) {
     }
 
@@ -54,6 +57,14 @@ class APIKeyAuthenticator extends AbstractAuthenticator
             }
 
             if (!Util::platformKeyIsValid($request, $key)) {
+                $securityUser = null;
+            }
+
+            $accountRepository = $this->doctrine->getRepository(Account::class);
+            $accountEntity = $accountRepository->findOneBy(['uid' => $uid]);
+            $accountEntity->calculateHasAcceptedTermsOfUse();
+
+            if (!$accountEntity->getHasAcceptedTermsOfUse()) {
                 $securityUser = null;
             }
         }

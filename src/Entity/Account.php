@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\AccountRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\DriverManager;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: AccountRepository::class)]
@@ -26,6 +27,8 @@ class Account
 
     #[ORM\OneToMany(mappedBy: 'account', targetEntity: Agreement::class)]
     private Collection $agreements;
+
+    private bool $hasAcceptedTermsOfUse = false;
 
     public function __construct()
     {
@@ -127,5 +130,51 @@ class Account
         }
 
         return $this;
+    }
+
+    public function getUnacceptedAgreementIds(): array
+    {
+        $connection = DriverManager::getConnection([
+            'url' => $_ENV['DATABASE_URL'],
+        ]);
+
+        $sql = "SELECT term.id
+                FROM term
+                LEFT JOIN agreement
+                ON term.id = agreement.term_id
+                AND agreement.account_uid = '{$this->uid}'
+                WHERE agreement.term_id IS NULL
+                AND term.version = (SELECT MAX(version) FROM term as termInner WHERE termInner.name = term.name)";
+
+        return $connection->fetchFirstColumn($sql);
+    }
+
+    public function calculateHasAcceptedTermsOfUse(): void
+    {
+        $connection = DriverManager::getConnection([
+            'url' => $_ENV['DATABASE_URL'],
+        ]);
+
+        $sql = "SELECT term.id
+                FROM term
+                LEFT JOIN agreement
+                ON term.id = agreement.term_id
+                AND agreement.account_uid = '{$this->uid}'
+                WHERE agreement.term_id IS NULL 
+                AND term.version = (SELECT MAX(version) FROM term as termInner WHERE termInner.name = term.name)
+                AND term.name = 'terms-of-use'
+                AND (SELECT COUNT(agreement.id) FROM agreement
+                        LEFT JOIN term as innerTerm ON agreement.term_id = innerTerm.id
+                        WHERE account_uid = '{$this->uid}'
+                        AND innerTerm.name = 'terms-of-use' AND valid_until > CURRENT_TIMESTAMP) = 0";
+
+        $results = $connection->fetchFirstColumn($sql);
+
+        $this->hasAcceptedTermsOfUse = count($results) === 0;
+    }
+
+    public function getHasAcceptedTermsOfUse(): bool
+    {
+        return $this->hasAcceptedTermsOfUse;
     }
 }

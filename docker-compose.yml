@@ -7,6 +7,7 @@ networks:
 
 services:
   app:
+    hostname: $COMPOSE_PROJECT_NAME
     image: ghcr.io/cords-connect/docker-container:debian-11.1.1.1
     volumes:
       - ./config/host/000-default.conf:/etc/apache2/sites-enabled/000-default.conf

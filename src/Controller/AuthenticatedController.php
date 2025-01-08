@@ -7,6 +7,7 @@ use App\Dto\Authenticated\UserData;
 use App\Email\NewAccountRequestViewModel;
 use App\Email\EmailService;
 use App\Entity\Account;
+use App\Entity\Agreement;
 use App\Entity\Filter;
 use App\Entity\Profile;
 use App\Entity\Term;
@@ -142,5 +143,35 @@ class AuthenticatedController extends AbstractController
         $missingTerms = $termRepository->findBy(['id' => $unacceptedTermIds]);
 
         return new JsonResponse(['data' => $missingTerms]);
+    }
+
+    #[Post('/authenticated/agreements/accept/{name}')]
+    public function acceptTerms(ManagerRegistry $doctrine, string $name): JsonResponse
+    {
+        $user = $this->getUser();
+
+        $accountRepository = $doctrine->getRepository(Account::class);
+        $account = $accountRepository->findOneBy(['uid' => $user->getUserIdentifier()]);
+
+        $termRepository = $doctrine->getRepository(Term::class);
+        $term = $termRepository->findOneBy(['name' => $name], ['version' => 'DESC']);
+
+        if (!$account || !$term) {
+            return new JsonResponse(['error' => 'account or term not found'], 422);
+        }
+
+        if (!$account->alreadyAcceptedThisTerm($term)) {
+            $agreement = new Agreement();
+            $agreement->setAccount($account);
+            $agreement->setTerm($term);
+            $agreement->setAcceptedDate((new \DateTime()));
+            $agreement->setValidUntil((new \DateTime('+60 days')));
+
+            $em = $doctrine->getManager();
+            $em->persist($agreement);
+            $em->flush();
+        }
+
+        return new JsonResponse(['data' => 'term accepted']);
     }
 }

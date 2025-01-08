@@ -132,6 +132,11 @@ class Account
         return $this;
     }
 
+    public function getHasAcceptedTermsOfUse(): bool
+    {
+        return $this->hasAcceptedTermsOfUse;
+    }
+
     public function getUnacceptedAgreementIds(): array
     {
         $connection = DriverManager::getConnection([
@@ -173,8 +178,14 @@ class Account
         $this->hasAcceptedTermsOfUse = count($results) === 0;
     }
 
-    public function getHasAcceptedTermsOfUse(): bool
+    public function alreadyAcceptedThisTerm(Term $term): bool
     {
-        return $this->hasAcceptedTermsOfUse;
+        $previousAgreements = $this->getAgreements()->getValues();
+        foreach ($previousAgreements as $agreement) {
+            if ($agreement->getTerm()->getId() === $term->getId()) {
+                return true;
+            }
+        }
+        return false;
     }
 }

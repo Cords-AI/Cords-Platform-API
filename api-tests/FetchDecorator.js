@@ -11,12 +11,11 @@ module.exports = async function request(url, options = {}) {
   const response = await fetch(`${process.env.APP_URL}${url}`, options);
   const status = response.status;
   const headers = Object.fromEntries(response.headers)
-  let body;
+  let body = await response.text();
   try {
-    body = await response.json();
-  }
-  catch(e) {
-    body = await response.text();
+    body = JSON.parse(body);
+  } catch(e) {
+
   }
 
   fs.writeFileSync(responseFile, JSON.stringify({

@@ -42,3 +42,13 @@ test('getTerm', async() => {
 
   expect(response.status).toBe(200);
 });
+
+test('acceptTerm', async() => {
+  const name = "terms-of-use"
+  const response = await fetch(`/authenticated/agreements/accept/${name}`, {
+    headers: getHeaders(),
+    method: 'POST',
+  });
+
+  expect(response.status).toBe(200);
+});

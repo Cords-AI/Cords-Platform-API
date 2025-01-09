@@ -146,15 +146,16 @@ class AuthenticatedController extends AbstractController
     }
 
     #[Post('/authenticated/agreements/accept/{name}')]
-    public function acceptTerms(ManagerRegistry $doctrine, string $name): JsonResponse
+    public function acceptTerms(ManagerRegistry $doctrine, string $name, Request $request): JsonResponse
     {
+        $requestBody = json_decode($request->getContent());
         $user = $this->getUser();
 
         $accountRepository = $doctrine->getRepository(Account::class);
         $account = $accountRepository->findOneBy(['uid' => $user->getUserIdentifier()]);
 
         $termRepository = $doctrine->getRepository(Term::class);
-        $term = $termRepository->findOneBy(['name' => $name], ['version' => 'DESC']);
+        $term = $termRepository->findOneBy(['name' => $name, 'version' => $requestBody->version]);
 
         if (!$account || !$term) {
             return new JsonResponse(['error' => 'account or term not found'], 422);

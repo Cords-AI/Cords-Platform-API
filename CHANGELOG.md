@@ -1,4 +1,6 @@
 
+## [1.0.0-beta.1](https://github.com/Cords-Connect/Partners-API/compare/v1.0.0-beta.0...v1.0.0-beta.1) (2025-01-10)
+
 ## [1.0.0-beta.0](https://github.com/Cords-Connect/Partners-API/compare/v1.0.0...v1.0.0-beta.0) (2024-12-17)
 
 

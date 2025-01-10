@@ -1,4 +1,3 @@
-export SKIP_POST_DEPLOY=TRUE
 export COMPOSE_FILE=docker-compose.yml:docker-compose.db.yml:./lib/deploykit/docker-compose.traefik.yml
 export APP_ENV=prod
 export DATABASE_URL="mysql://root@$COMPOSE_PROJECT_NAME-db:3306/partners?serverVersion=8.0&charset=utf8mb4"

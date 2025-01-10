@@ -7,8 +7,8 @@ export VERSION
 
 j2 .env.j2 > .env
 compose="docker compose -p cords-parnter-portal-backend-builder"
-$compose run -u $(id -u) web composer install
-$compose run -u $(id -u) web composer dump-env prod
+$compose run -u $(id -u) app composer install
+$compose run -u $(id -u) app composer dump-env prod
 
 rsync \
   -a . \
@@ -20,6 +20,6 @@ rsync \
 
 cd $1
 docker compose up -d
-docker compose exec -T -u $(id -u) web ./bin/console doctrine:migrations:migrate
-docker compose exec -T -u $(id -u) web ./bin/console cache:clear
+docker compose exec -T -u $(id -u) app ./bin/console doctrine:migrations:migrate
+docker compose exec -T -u $(id -u) app ./bin/console cache:clear
 sudo chmod -R 777 var

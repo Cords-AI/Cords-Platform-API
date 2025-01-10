@@ -33,8 +33,8 @@ final class Version20250106155756 extends AbstractMigration
                         1,
                         'CORDS Platform Partner Terms of Use',
                         'Conditions d\’utilisation de la plateforme CORDS pour les Partenaires',
-                        'https://wp.cords.ai/en/agreements/terms-of-use/v1',
-                        'https://wp.cords.ai/fr/agreements/terms-of-use/v1',
+                        'https://assets.cords.ai/partners-terms-of-use/v1/en/',
+                        'https://assets.cords.ai/partners-terms-of-use/v1/fr/',
                         CURRENT_TIMESTAMP
                      ),
                      (

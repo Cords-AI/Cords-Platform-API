@@ -18,9 +18,63 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
+use OpenApi\Attributes as OA;
+
+#[OA\Info(title: "CORDS Platform API", version: "", description: "The CORDS Platform API can be used to get the Search Log and manage API keys.\n\nVisit https://partners.cords.ai to generate a Platform API key.")]
+#[OA\Parameter(
+    name: "x-api-key",
+    in: "header",
+    required: true,
+    schema: new OA\Schema(type: "string"),
+    parameter: "ApiKeyHeader"
+)]
+#[OA\Parameter(
+    name: "referer",
+    in: "header",
+    required: false,
+    description: "Platform API keys must have either an IP or Referer restriction",
+    schema: new OA\Schema(type: "string"),
+    parameter: "RefererHeader"
+)]
+#[OA\Parameter(
+    name: "id",
+    in: "path",
+    required: true,
+    description: "The id of the API key",
+    schema: new OA\Schema(type: "string"),
+    parameter: "ApiKeyId"
+)]
+#[OA\Parameter(
+    name: "apiKeyId",
+    in: "path",
+    required: true,
+    description: "The id of the API key",
+    schema: new OA\Schema(type: "integer"),
+    parameter: "ApiKeyId2"
+)]
 class ApprovedPartnerController extends AbstractController
 {
     #[Post('/partner/approved/api-key/add')]
+    #[OA\Post(
+        path: "/partner/approved/api-key/add",
+        summary: "/partner/approved/api-key/add",
+        description: "Add an API key.",
+        parameters: [
+            new OA\Parameter(ref: "#/components/parameters/ApiKeyHeader"),
+            new OA\Parameter(ref: "#/components/parameters/RefererHeader"),
+        ],
+        requestBody: new OA\RequestBody(
+            content: new OA\JsonContent(
+                type: "object",
+                required: ["name", "type"],
+                properties: [
+                    new OA\Property(property: "name", type: "string"),
+                    new OA\Property(property: "type", type: "string", description: "Either 'dev' or 'prod'"),
+                ]
+            )
+        ),
+        responses: [new OA\Response(response: 200, description: "", content: new OA\JsonContent(type: "object"))]
+    )]
     public function addApiKey(EntityManagerInterface $em, Request $request): JsonResponse
     {
         $body = json_decode($request->getContent());
@@ -43,6 +97,26 @@ class ApprovedPartnerController extends AbstractController
     }
 
     #[Patch('/partner/approved/api-key/update/{id}')]
+    #[OA\Patch(
+        path: "/partner/approved/api-key/update/{id}",
+        summary: "/partner/approved/api-key/update/{id}",
+        description: "Rename an API key.",
+        parameters: [
+            new OA\Parameter(ref: "#/components/parameters/ApiKeyHeader"),
+            new OA\Parameter(ref: "#/components/parameters/RefererHeader"),
+            new OA\Parameter(ref: "#/components/parameters/ApiKeyId"),
+        ],
+        requestBody: new OA\RequestBody(
+            content: new OA\JsonContent(
+                type: "object",
+                required: ["name"],
+                properties: [
+                    new OA\Property(property: "name", type: "string"),
+                ]
+            )
+        ),
+        responses: [new OA\Response(response: 200, description: "", content: new OA\JsonContent(type: "object"))]
+    )]
     public function updateKeyName(EntityManagerInterface $em, Request $request, string $id): JsonResponse
     {
         $body = json_decode($request->getContent());
@@ -59,6 +133,17 @@ class ApprovedPartnerController extends AbstractController
     }
 
     #[Delete('/partner/approved/api-key/delete/{id}')]
+    #[OA\Delete(
+        path: "/partner/approved/api-key/delete/{id}",
+        summary: "/partner/approved/api-key/delete/{id}",
+        description: "Delete an API key.",
+        parameters: [
+            new OA\Parameter(ref: "#/components/parameters/ApiKeyHeader"),
+            new OA\Parameter(ref: "#/components/parameters/RefererHeader"),
+            new OA\Parameter(ref: "#/components/parameters/ApiKeyId"),
+        ],
+        responses: [new OA\Response(response: 200, description: "", content: new OA\JsonContent(type: "object"))]
+    )]
     public function deleteApiKey(EntityManagerInterface $em, string $id): JsonResponse
     {
         $uid = $this->getUser()->getUserIdentifier();
@@ -75,6 +160,16 @@ class ApprovedPartnerController extends AbstractController
     }
 
     #[Get('/partner/approved/api-key/list')]
+    #[OA\Get(
+        path: "/partner/approved/api-key/list",
+        summary: "/partner/approved/api-key/list",
+        description: "List your API keys.",
+        parameters: [
+            new OA\Parameter(ref: "#/components/parameters/ApiKeyHeader"),
+            new OA\Parameter(ref: "#/components/parameters/RefererHeader"),
+        ],
+        responses: [new OA\Response(response: 200, description: "", content: new OA\JsonContent(type: "object"))]
+    )]
     public function getApiKeysList(EntityManagerInterface $em, Request $request): JsonResponse
     {
         $uid = $this->getUser()->getUserIdentifier();
@@ -103,6 +198,17 @@ class ApprovedPartnerController extends AbstractController
     }
 
     #[Get('/partner/approved/api-key/{id}')]
+    #[OA\Get(
+        path: "/partner/approved/api-key/{id}",
+        summary: "/partner/approved/api-key/{id}",
+        description: "Get API key details",
+        parameters: [
+            new OA\Parameter(ref: "#/components/parameters/ApiKeyHeader"),
+            new OA\Parameter(ref: "#/components/parameters/RefererHeader"),
+            new OA\Parameter(ref: "#/components/parameters/ApiKeyId"),
+        ],
+        responses: [new OA\Response(response: 200, description: "", content: new OA\JsonContent(type: "object"))]
+    )]
     public function getApiKey(EntityManagerInterface $em, string $id): JsonResponse
     {
         $uid = $this->getUser()->getUserIdentifier();
@@ -115,6 +221,30 @@ class ApprovedPartnerController extends AbstractController
     }
 
     #[Post('/partner/approved/enabled-url/api-key/{id}/add')]
+    #[OA\Post(
+        path: "/partner/approved/enabled-url/api-key/{id}/add",
+        summary: "/partner/approved/enabled-url/api-key/{id}/add",
+        description: "Authorize a Referer",
+        parameters: [
+            new OA\Parameter(ref: "#/components/parameters/ApiKeyHeader"),
+            new OA\Parameter(ref: "#/components/parameters/RefererHeader"),
+            new OA\Parameter(ref: "#/components/parameters/ApiKeyId"),
+            new OA\RequestBody(
+                required: true,
+                description: "The url to authorize",
+                content: new OA\JsonContent(
+                    type: "object",
+                    properties: [
+                        new OA\Property(
+                            property: "url",
+                            type: "string"
+                        )
+                    ]
+                )
+            )
+        ],
+        responses: [new OA\Response(response: 200, description: "", content: new OA\JsonContent(type: "object"))]
+    )]
     public function addEnabledUrl(EntityManagerInterface $em, string $id, Request $request): JsonResponse
     {
         $uid = $this->getUser()->getUserIdentifier();
@@ -140,6 +270,24 @@ class ApprovedPartnerController extends AbstractController
     }
 
     #[Delete('/partner/approved/enabled-url/api-key/{apiKeyId}/remove/{urlId}')]
+    #[OA\Delete(
+        path: "/partner/approved/enabled-url/api-key/{apiKeyId}/remove/{urlId}",
+        summary: "/partner/approved/enabled-url/api-key/{apiKeyId}/remove/{urlId}",
+        description: "Remove a Referer",
+        parameters: [
+            new OA\Parameter(ref: "#/components/parameters/ApiKeyHeader"),
+            new OA\Parameter(ref: "#/components/parameters/RefererHeader"),
+            new OA\Parameter(ref: "#/components/parameters/ApiKeyId2"),
+            new OA\Parameter(
+                name: "urlId",
+                in: "path",
+                required: true,
+                description: "The Referer ID to remove",
+                schema: new OA\Schema(type: "string"),
+            )
+        ],
+        responses: [new OA\Response(response: 200, description: "", content: new OA\JsonContent(type: "object"))]
+    )]
     public function deleteEnabledUrl(EntityManagerInterface $em, string $apiKeyId, string $urlId): JsonResponse
     {
         $uid = $this->getUser()->getUserIdentifier();
@@ -161,6 +309,17 @@ class ApprovedPartnerController extends AbstractController
     }
 
     #[Get('/partner/approved/enabled-urls/api-key/{id}')]
+    #[OA\Get(
+        path: "/partner/approved/enabled-urls/api-key/{id}",
+        summary: "/partner/approved/enabled-urls/api-key/{id}",
+        description: "List authorized Referers",
+        parameters: [
+            new OA\Parameter(ref: "#/components/parameters/ApiKeyHeader"),
+            new OA\Parameter(ref: "#/components/parameters/RefererHeader"),
+            new OA\Parameter(ref: "#/components/parameters/ApiKeyId"),
+        ],
+        responses: [new OA\Response(response: 200, description: "", content: new OA\JsonContent(type: "object"))]
+    )]
     public function getEnabledUrls(EntityManagerInterface $em, string $id): JsonResponse
     {
         $uid = $this->getUser()->getUserIdentifier();
@@ -173,6 +332,30 @@ class ApprovedPartnerController extends AbstractController
     }
 
     #[Post('/partner/approved/enabled-ip/api-key/{id}/add')]
+    #[OA\Post(
+        path: "/partner/approved/enabled-ip/api-key/{id}/add",
+        summary: "/partner/approved/enabled-ip/api-key/{id}/add",
+        description: "Authorize an IP",
+        parameters: [
+            new OA\Parameter(ref: "#/components/parameters/ApiKeyHeader"),
+            new OA\Parameter(ref: "#/components/parameters/RefererHeader"),
+            new OA\Parameter(ref: "#/components/parameters/ApiKeyId"),
+            new OA\RequestBody(
+                required: true,
+                description: "The ip to authorize",
+                content: new OA\JsonContent(
+                    type: "object",
+                    properties: [
+                        new OA\Property(
+                            property: "ip",
+                            type: "string"
+                        )
+                    ]
+                )
+            )
+        ],
+        responses: [new OA\Response(response: 200, description: "", content: new OA\JsonContent(type: "object"))]
+    )]
     public function addEnabledIp(EntityManagerInterface $em, string $id, Request $request): JsonResponse
     {
         $uid = $this->getUser()->getUserIdentifier();
@@ -198,6 +381,24 @@ class ApprovedPartnerController extends AbstractController
     }
 
     #[Delete('/partner/approved/enabled-ip/api-key/{apiKeyId}/remove/{ipId}')]
+    #[OA\Delete(
+        path: "/partner/approved/enabled-ip/api-key/{apiKeyId}/remove/{ipId}",
+        summary: "/partner/approved/enabled-ip/api-key/{apiKeyId}/remove/{ipId}",
+        description: "Remove an IP",
+        parameters: [
+            new OA\Parameter(ref: "#/components/parameters/ApiKeyHeader"),
+            new OA\Parameter(ref: "#/components/parameters/RefererHeader"),
+            new OA\Parameter(ref: "#/components/parameters/ApiKeyId2"),
+            new OA\Parameter(
+                name: "ipId",
+                in: "path",
+                required: true,
+                description: "The ID of IP to remove",
+                schema: new OA\Schema(type: "string"),
+            )
+        ],
+        responses: [new OA\Response(response: 200, description: "", content: new OA\JsonContent(type: "object"))]
+    )]
     public function deleteEnabledIp(EntityManagerInterface $em, string $apiKeyId, string $ipId): JsonResponse
     {
         $uid = $this->getUser()->getUserIdentifier();
@@ -219,6 +420,24 @@ class ApprovedPartnerController extends AbstractController
     }
 
     #[Get('/partner/approved/report')]
+    #[OA\Get(
+        path: "/partner/approved/report",
+        summary: "/partner/approved/report",
+        description: "Get CORDS Search log",
+        parameters: [
+            new OA\Parameter(ref: "#/components/parameters/ApiKeyHeader"),
+            new OA\Parameter(ref: "#/components/parameters/RefererHeader"),
+            new OA\Parameter(in: "query", name: "filters[email]", description: "Account holder email must include value", schema: new OA\Schema(type: "string")),
+            new OA\Parameter(in: "query", name: "filters[search-term]", description: "Search term must include value", schema: new OA\Schema(type: "string")),
+            new OA\Parameter(in: "query", name: "filters[key-type]", description: "Either 'dev' or 'prod'", schema: new OA\Schema(type: "string")),
+            new OA\Parameter(in: "query", name: "filters[api-key]", description: "The ID of the api-key. Not the key itself!", schema: new OA\Schema(type: "string")),
+            new OA\Parameter(in: "query", name: "filters[province]", description: "The provincial abbreviation (e.g. ON) that the search was set to.", schema: new OA\Schema(type: "string")),
+            new OA\Parameter(in: "query", name: "filters[postal-code]", description: "The postal code that the search was set to must include value", schema: new OA\Schema(type: "string")),
+            new OA\Parameter(in: "query", name: "filters[country]", description: "The country that the search was set to must include value", schema: new OA\Schema(type: "string")),
+            new OA\Parameter(in: "query", name: "page", description: "25 results are included per page", schema: new OA\Schema(type: "string", default: "1")),
+        ],
+        responses: [new OA\Response(response: 200, description: "", content: new OA\JsonContent(type: "object"))]
+    )]
     public function getReport(Request $request, LogCollection $logCollection, ClientContext $clientContext): JsonResponse
     {
         $filters = $request->get('filters');
@@ -242,6 +461,24 @@ class ApprovedPartnerController extends AbstractController
     }
 
     #[Get("/partner/approved/report/export")]
+    #[OA\Get(
+        path: "/partner/approved/report/export",
+        summary: "/partner/approved/report/export",
+        description: "Get CORDS Search log as a .xlsx",
+        parameters: [
+            new OA\Parameter(ref: "#/components/parameters/ApiKeyHeader"),
+            new OA\Parameter(ref: "#/components/parameters/RefererHeader"),
+            new OA\Parameter(in: "query", name: "filters[email]", description: "Account holder email must include value", schema: new OA\Schema(type: "string")),
+            new OA\Parameter(in: "query", name: "filters[search-term]", description: "Search term must include value", schema: new OA\Schema(type: "string")),
+            new OA\Parameter(in: "query", name: "filters[key-type]", description: "Either 'dev' or 'prod'", schema: new OA\Schema(type: "string")),
+            new OA\Parameter(in: "query", name: "filters[api-key]", description: "The ID of the api-key. Not the key itself!", schema: new OA\Schema(type: "string")),
+            new OA\Parameter(in: "query", name: "filters[province]", description: "The provincial abbreviation (e.g. ON) that the search was set to.", schema: new OA\Schema(type: "string")),
+            new OA\Parameter(in: "query", name: "filters[postal-code]", description: "The postal code that the search was set to must include value", schema: new OA\Schema(type: "string")),
+            new OA\Parameter(in: "query", name: "filters[country]", description: "The country that the search was set to must include value", schema: new OA\Schema(type: "string")),
+            new OA\Parameter(in: "query", name: "page", description: "25 results are included per page", schema: new OA\Schema(type: "string", default: "1")),
+        ],
+        responses: [new OA\Response(response: 200, description: "", content: new OA\JsonContent(type: "object"))]
+    )]
     public function exportLogs(Request $request, LogCollection $logCollection)
     {
         $filters = $request->get('filters');

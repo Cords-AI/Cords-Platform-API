@@ -1,4 +1,8 @@
 services:
+  app:
+    volumes:
+      - ./config/host/20-xdebug.ini:/etc/php/8.2/apache2/conf.d/20-xdebug.ini
+
   db:
     volumes:
       - data:/var/lib/mysql

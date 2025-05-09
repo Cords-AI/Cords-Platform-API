@@ -82,7 +82,7 @@ class LogCollection extends AbstractCollection
         $this->addTempTranslationTable();
 
         $fieldsToFetch = ['id', 'apiKey', 'ip', 'searchString', 'latitude', 'longitude', 'province', 'type',
-            'createdDate', 'postalCode', 'country'];
+            'createdDate', 'postalCode', 'country', 'sid'];
         if ($this->isAdmin) {
             $fieldsToFetch[] = 'email';
             $this->addTextFieldFilter('email', $this->qb);
@@ -148,6 +148,7 @@ class LogCollection extends AbstractCollection
 
         $this->addTextFieldFilter('postal-code', $this->qb);
         $this->addTextFieldFilter('country', $this->qb);
+        $this->addTextFieldFilter('sid', $this->qb);
 
         if (!empty($this->filters['dates'])) {
             $dateRange = urldecode($this->filters['dates']);
@@ -165,7 +166,6 @@ class LogCollection extends AbstractCollection
             $this->qb->andWhere('log.createdDate <= :endDate')
                 ->setParameter('endDate', $endDate);
         }
-
 
         if (!empty($this->filters['key-type']) || !empty($this->filters['api-key'])) {
             $this->qb->leftJoin(ApiKey::class, 'apiKeyTable', 'WITH', 'log.apiKey = apiKeyTable.apiKey');

@@ -52,6 +52,9 @@ class Log implements \JsonSerializable
     #[ORM\OneToMany(mappedBy: 'log', targetEntity: SearchFilter::class)]
     private Collection $searchFilters;
 
+    #[ORM\Column(length: 36, nullable: true)]
+    private ?string $sid = null;
+
     private ?array $queriedFilters;
 
     public function __construct()
@@ -197,6 +200,18 @@ class Log implements \JsonSerializable
         return $this;
     }
 
+    public function getSid(): ?string
+    {
+        return $this->sid;
+    }
+
+    public function setSid(?string $sid): static
+    {
+        $this->sid = $sid;
+
+        return $this;
+    }
+
     public function setQueriedFilters(?array $queriedFilters): static
     {
         $this->queriedFilters = $queriedFilters;
@@ -223,6 +238,7 @@ class Log implements \JsonSerializable
             'filters' => $this->getQueriedFilters(),
             'country' => $this->country,
             'postalCode' => $this->postalCode,
+            'sid' => $this->sid,
         ];
     }
 

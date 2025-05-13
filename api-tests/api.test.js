@@ -52,3 +52,29 @@ test('acceptTerm', async() => {
 
   expect(response.status).toBe(200);
 });
+
+test('postLog', async () => {
+  const body = {
+    apiKey: process.env.TEST_API_KEY,
+    ip: '127.0.0.1',
+    searchString: 'test search',
+    latitude: '12.34',
+    longitude: '56.78',
+    province: 'Ontario',
+    country: 'Canada',
+    postalCode: 'A1B2C3',
+    type: 'search',
+    sid: 'test-session-id',
+    filters: ['filter1', 'filter2'],
+  };
+  const response = await fetch('/system/log', {
+    method: 'POST',
+    headers: {
+      'x-api-key': process.env.SYSTEM_TOKEN,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(body),
+  });
+  expect(response.status).toBe(200);
+  expect(response.body.data).toBe('success');
+});

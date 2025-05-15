@@ -25,6 +25,8 @@ class LogCollection extends AbstractCollection
 
     private int $maxTranslationsLength = 0;
 
+    private bool $debug = false;
+
     private function getOffset(): int {
         return ($this->page - 1) * $this->limit;
     }
@@ -74,6 +76,12 @@ class LogCollection extends AbstractCollection
         if ($clientLang) {
             $this->clientLang = $clientLang;
         }
+        return $this;
+    }
+
+    public function debug(bool $debug): self
+    {
+        $this->debug = $debug;
         return $this;
     }
 
@@ -149,6 +157,10 @@ class LogCollection extends AbstractCollection
         $this->addTextFieldFilter('postal-code', $this->qb);
         $this->addTextFieldFilter('country', $this->qb);
         $this->addTextFieldFilter('sid', $this->qb);
+
+        if (!$this->debug) {
+            $this->excludeTestQueries();
+        }
 
         if (!empty($this->filters['dates'])) {
             $dateRange = urldecode($this->filters['dates']);
@@ -317,5 +329,12 @@ class LogCollection extends AbstractCollection
         $formattedStr = ucwords($formattedStr);
         $formattedStr = str_replace(' ', '', $formattedStr);
         return lcfirst($formattedStr);
+    }
+
+    function excludeTestQueries(): void
+    {
+        $testQueryFormat = '^test [0-9]{4}-[0-9]{2}-[0-3][0-9] [0-2][0-9]:[0-5][0-9]$';
+        $this->qb->andWhere('REGEXP(log.searchString, :testQueryFormat) = false')
+            ->setParameter('testQueryFormat', $testQueryFormat);
     }
 }

@@ -444,6 +444,7 @@ class ApprovedPartnerController extends AbstractController
 
         $page = $request->get('page');
         $search = $request->get('search');
+        $debug = strtolower($request->get('debug')) === 'true';
 
         $uid = $this->getUser()->getUserIdentifier();
         $isAdmin = in_array('ROLE_ADMIN', $this->getUser()->getRoles());
@@ -453,6 +454,7 @@ class ApprovedPartnerController extends AbstractController
             ->filters($filters)
             ->page($page)
             ->search($search)
+            ->debug($debug)
             ->clientLang($clientContext->langCode)
             ->sort($request->get('sort-by'), $request->get('descending'))
             ->fetchRows();
@@ -483,6 +485,7 @@ class ApprovedPartnerController extends AbstractController
     {
         $filters = $request->get('filters');
         $search = $request->get('search');
+        $debug = strtolower($request->get('debug')) === 'true';
 
         $uid = $this->getUser()->getUserIdentifier();
         $isAdmin = in_array('ROLE_ADMIN', $this->getUser()->getRoles());
@@ -493,6 +496,7 @@ class ApprovedPartnerController extends AbstractController
             ->filters($filters)
             ->page(1)
             ->search($search)
+            ->debug($debug)
             ->sort($request->get('sort-by'), $request->get('descending'))
             ->fetchRows();
 

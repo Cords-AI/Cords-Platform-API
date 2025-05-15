@@ -30,6 +30,7 @@ doctrine:
                 JSON_LENGTH: Scienta\DoctrineJsonFunctions\Query\AST\Functions\Mysql\JsonLength
                 GROUP_CONCAT: DoctrineExtensions\Query\Mysql\GroupConcat
                 CAST: DoctrineExtensions\Query\Mysql\Cast
+                REGEXP: DoctrineExtensions\Query\Mysql\Regexp
 
 when@test:
     doctrine:

@@ -264,6 +264,7 @@ class LogCollection extends AbstractCollection
         if ($this->isAdmin) {
             $this->exportHeaders[] = 'Account';
         }
+        $this->exportHeaders[] = 'Session ID';
         $this->exportHeaders[] = 'Type';
         $this->exportHeaders[] = 'Query';
         $this->exportHeaders[] = 'Postal Code';
@@ -284,6 +285,7 @@ class LogCollection extends AbstractCollection
             if ($this->isAdmin) {
                 $currentRow['Account'] = $log->getEmail();
             }
+            $currentRow['Session ID'] = $log->getSid();
             $currentRow['Type'] = $log->getType();
             $currentRow['Query'] = $log->getSearchString();
             $currentRow['Postal Code'] = $log->getPostalCode();

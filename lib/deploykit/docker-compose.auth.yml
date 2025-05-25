@@ -1,0 +1,5 @@
+services:
+  app:
+    labels:
+      - "traefik.http.routers.$COMPOSE_PROJECT_NAME.middlewares=$COMPOSE_PROJECT_NAME-auth"
+      - "traefik.http.middlewares.$COMPOSE_PROJECT_NAME-auth.basicauth.users=$TRAEFIK_PASSWORD"

@@ -1,0 +1,4 @@
+services:
+  app:
+    labels:
+      - "traefik.http.routers.$COMPOSE_PROJECT_NAME.tls.certresolver=letsencrypt"

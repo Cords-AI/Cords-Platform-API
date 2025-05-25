@@ -1,0 +1,8 @@
+#!/bin/bash
+set -e
+
+export PROJECT_NAME="${GITHUB_REPOSITORY##*/}"
+export PROJECT_NAME="${PROJECT_NAME,,}"
+export BRANCH_NAME=$(git branch --show-current)
+export ENV_NAME=$(./lib/deploykit/get-env-name $BRANCH_NAME)
+export COMPOSE_PROJECT_NAME="$ORG_NAME-$PROJECT_NAME-$ENV_NAME"

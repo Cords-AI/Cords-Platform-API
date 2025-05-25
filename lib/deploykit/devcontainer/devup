@@ -1,0 +1,13 @@
+#!/bin/bash
+set -e
+
+export DOCKER_COMPOSE_DB_EXISTS=FALSE; [ -f "docker-compose.db.yml" ] && export DOCKER_COMPOSE_DB_EXISTS=TRUE
+export DOCKER_COMPOSE_DEV_EXISTS=FALSE; [ -f "docker-compose.dev.yml" ] && export DOCKER_COMPOSE_DEV_EXISTS=TRUE
+
+if [ ! -d .devcontainer ]; then
+  mkdir .devcontainer
+fi
+
+j2 ./lib/deploykit/devcontainer/devcontainer.json.j2 > .devcontainer/devcontainer.json
+
+devcontainer up --workspace-folder .

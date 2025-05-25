@@ -1,0 +1,94 @@
+#!/bin/bash
+set -e
+
+echo "::group::Setup"
+source ./lib/deploykit/update-env-vars
+echo "::endgroup::"
+
+echo "::group::Preflight"
+PREFLIGHT_FILE="./hooks/deploykit-preflight"
+if [ -e "$PREFLIGHT_FILE" ]; then
+  echo "::notice title=Sourcing $PREFLIGHT_FILE"
+  source $PREFLIGHT_FILE
+fi
+ENV_PREFLIGHT_FILE="./hooks/deploykit-preflight.$ENV_NAME"
+if [ -e  "$ENV_PREFLIGHT_FILE" ]; then
+  echo "::notice title=Sourcing $ENV_PREFLIGHT_FILE"
+  source $ENV_PREFLIGHT_FILE
+fi
+# if [ "${SKIP_POST_DEPLOY}" != "TRUE" ]; then
+#   git checkout main 2>/dev/null || git checkout -b main
+#   git merge-base --is-ancestor HEAD $BRANCH_NAME
+#   git checkout $BRANCH_NAME
+# fi
+echo "::endgroup::"
+
+echo "::group::Deploy"
+if [ "${SKIP_POST_DEPLOY}" != "TRUE" ]; then
+  ./lib/deploykit/tag-release
+fi
+
+# Check for required vars
+if [ -z "$ORG_NAME" ]; then
+  echo "Required variable not set: ORG_NAME"
+  exit 1
+fi
+
+if [ -z "$ENV_NAME" ]; then
+  echo "Required variable not set: ENV_NAME"
+  exit 1
+fi
+
+if [ -z "$PROJECT_NAME" ]; then
+  echo "Required variable not set: PROJECT_NAME"
+  exit 1
+fi
+
+DEPLOY_FILE="./hooks/deploykit-deploy"
+if [ -e "$DEPLOY_FILE" ]; then
+  TARGET="/home/ubuntu/orgs/$ORG_NAME/$ENV_NAME/$PROJECT_NAME"
+  if [ ! -d $TARGET ]; then
+    mkdir -p $TARGET
+  fi
+  echo "::notice title=Deploying to::$TARGET"
+
+  # Abort if target is not clean
+  # if [ -e "$TARGET/.git" ]; then
+  #   if [ -e "$TARGET/package-lock.json" ]; then
+  #     (cd $TARGET && git update-index --assume-unchanged package-lock.json)
+  #   fi
+  #   if ! (cd $TARGET && git diff-index --quiet HEAD --); then
+  #     echo "Error: There are uncommitted changes."
+  #     if [ -e "$TARGET/package-lock.json" ]; then
+  #       (cd $TARGET && git update-index --no-assume-unchanged package-lock.json)
+  #     fi
+  #     exit 1
+  #   fi
+  #   if [ -e "$TARGET/package-lock.json" ]; then
+  #     (cd $TARGET && git update-index --assume-unchanged package-lock.json)
+  #   fi
+  # fi
+
+  # Backup .env and create a new one
+  if [ -f .env.j2 ]; then
+    if [ -f "$1/.env" ]; then
+      cp "$1/.env" .env.bak
+    fi
+    echo "::notice title=Creating .env"
+    j2 .env.j2 > .env
+  fi
+
+  "$DEPLOY_FILE" "$TARGET";
+fi
+echo "::endgroup::"
+
+# if [ "${SKIP_POST_DEPLOY}" != "TRUE" ]; then
+#   if [ -z "$DEPLOYMENT_URL" ]; then
+#     export DEPLOYMENT_URL=https://$TRAEFIK_HOSTNAME
+#   fi
+#   echo "::group::Post-Deploy"
+#   ./lib/deploykit/create-github-deployment
+#   ./lib/deploykit/push-release
+#   ./lib/deploykit/create-github-release
+#   echo "::endgroup::"
+# fi

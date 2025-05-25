@@ -1,0 +1,43 @@
+name: Deploy
+
+on:
+  workflow_call:
+    inputs:
+      runner:
+        type: string
+        required: true
+      org_name:
+        type: string
+
+jobs:
+  Deploy:
+    if: ${{ !endsWith(github.actor, 'Bot') }}
+
+    runs-on: ${{ inputs.runner }}
+
+    steps:
+      - name: Setup
+        run: |
+          source ~/.secrets
+          echo "::add-mask::$BOT_TOKEN"; echo "GITHUB_TOKEN=$BOT_TOKEN" >> $GITHUB_ENV
+          echo "$(npm prefix -g | xargs -I {} echo "{}/bin")" >> $GITHUB_PATH
+          echo "ORG_NAME=${{ inputs.org_name }}"
+          echo "ORG_NAME=${{ inputs.org_name }}" >> $GITHUB_ENV
+
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ env.GITHUB_TOKEN }}
+          fetch-depth: 0
+          submodules: true
+          clean: true
+
+      - name: Source variables and secrets
+        run: |
+          if [ -e ~/.vars ]; then
+            MASK=FALSE ./lib/deploykit/source-secrets ~/.vars
+          fi
+          if [ -e ~/.secrets ]; then
+            ./lib/deploykit/source-secrets ~/.secrets
+          fi
+
+      - run: ./lib/deploykit/deploy

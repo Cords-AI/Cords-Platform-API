@@ -1,3 +1,0 @@
-[submodule "lib/deploykit"]
-	path = lib/deploykit
-	url = git@github.com:Cords-Connect/DeployKit.git

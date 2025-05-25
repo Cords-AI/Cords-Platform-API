@@ -1,0 +1,22 @@
+#!/bin/bash
+source .env
+set -e
+
+if [ -f composer.json ]; then
+  composer install
+fi
+
+if [ -f docker-compose.db.yml ]; then
+  until mysqladmin ping -u root -h "$COMPOSE_PROJECT_NAME-db" --silent; do
+    echo "Waiting for MySQL server to be ready..."
+    sleep 5
+  done
+  if [ -d migrations ]; then
+    ./bin/console doctrine:database:create || true
+    ./bin/console doctrine:migrations:migrate --no-interaction
+  fi
+fi
+
+if [ -f hooks/devup-post ]; then
+  ./hooks/devup-post
+fi

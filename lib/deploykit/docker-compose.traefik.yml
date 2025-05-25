@@ -1,0 +1,11 @@
+networks:
+  default:
+    name: traefik
+    external: true
+
+services:
+  app:
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.$COMPOSE_PROJECT_NAME.rule=Host(`$TRAEFIK_HOSTNAME`)"
+      - "traefik.http.routers.$COMPOSE_PROJECT_NAME.tls=true"

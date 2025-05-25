@@ -1,0 +1,16 @@
+{
+  "dockerComposeFile": [
+    "../docker-compose.yml"
+    {% if DOCKER_COMPOSE_DB_EXISTS == "TRUE" -%}
+    , "../docker-compose.db.yml"
+    {% endif -%}
+    {% if DOCKER_COMPOSE_DEV_EXISTS == "TRUE" -%}
+    , "../docker-compose.dev.yml"
+    {% endif -%}
+  ],
+  "service": "app",
+  "initializeCommand": "lib/deploykit/devcontainer/initializeCommand",
+  "workspaceFolder": "/app",
+  "postCreateCommand": "lib/deploykit/devcontainer/postCreateCommand",
+  "remoteUser": "1000"
+}

@@ -1,0 +1,10 @@
+#!/bin/bash
+set -ex
+
+git push origin $BRANCH_NAME --tags
+
+git checkout main -f
+git merge --ff-only $BRANCH_NAME || true
+git push origin main
+
+git checkout $BRANCH_NAME

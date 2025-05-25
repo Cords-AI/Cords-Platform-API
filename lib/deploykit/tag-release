@@ -1,0 +1,31 @@
+#!/bin/bash
+set -ex
+
+RELEASE_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
+# Set PRE_RELEASE_LABEL based on the branch name
+if [ "$RELEASE_BRANCH" == "alpha" ]; then
+  PRE_RELEASE_LABEL=alpha
+else
+  PRE_RELEASE_LABEL=beta
+fi
+
+# Check if there are any existing tags
+if git rev-parse --quiet --verify refs/tags/* >/dev/null; then
+  # Use the default versioning flow
+  commit-and-tag-version \
+    -a \
+    --tag-force \
+    --header "" \
+    --releaseCommitMessageFormat "dev(release): {{currentTag}}" \
+    $( [ "$RELEASE_BRANCH" != "release/prod" ] && echo "--prerelease $PRE_RELEASE_LABEL" )
+else
+  # Set the first version as 1.0.0
+  commit-and-tag-version \
+    -a \
+    --tag-force \
+    --header "" \
+    --releaseCommitMessageFormat "dev(release): {{currentTag}}" \
+    $( [ "$RELEASE_BRANCH" != "release/prod" ] && echo "--prerelease $PRE_RELEASE_LABEL" ) \
+    --release-as 1.0.0
+fi

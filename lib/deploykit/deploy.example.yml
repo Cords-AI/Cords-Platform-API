@@ -1,0 +1,34 @@
+name: Deploy
+
+on:
+  workflow_dispatch:
+
+  push:
+    branches:
+      - release/*
+
+jobs:
+  determine-runner:
+    runs-on: demo
+    outputs:
+      runner: ${{ steps.set-runner.outputs.runner }}
+    steps:
+      - id: set-runner
+        run: |
+          if [ "$GITHUB_REF_NAME" = "main" ]; then
+            echo "runner=stage" >> $GITHUB_OUTPUT
+          elif [ "$GITHUB_REF_NAME" = "release/demo" ]; then
+            echo "runner=demo" >> $GITHUB_OUTPUT
+          elif [ "$GITHUB_REF_NAME" = "release/prod" ]; then
+            echo "runner=prod" >> $GITHUB_OUTPUT
+          else
+            echo "Could not determine runner"
+            exit 1
+          fi
+
+  call-deploykit-deploy:
+    uses: $GITHUB_ORG/DeployKit/.github/workflows/deploy.yml@main
+    needs: determine-runner
+    with:
+      runner: ${{ needs.determine-runner.outputs.runner }}
+      org_name: $ORG_NAME

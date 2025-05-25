@@ -1,0 +1,27 @@
+#!/bin/bash
+source ./lib/deploykit/devcontainer/lib.sh
+set -e
+
+export PROJECT_NAME=$(basename "$PWD")
+
+PRE_INIT_FILE="./hooks/devup-pre-init"
+if [ -f "$PRE_INIT_FILE" ]; then
+  source $PRE_INIT_FILE
+fi
+
+if [ ! -s .env ]; then
+  j2 .env.j2 > .env
+fi
+
+if [ -f package.json ]; then
+  docker compose run \
+    --rm \
+    -u $(id -u) \
+    app \
+    npm install
+fi
+
+POST_INIT_FILE="./hooks/devup-post-init"
+if [ -f $POST_INIT_FILE ]; then
+  source $POST_INIT_FILE
+fi

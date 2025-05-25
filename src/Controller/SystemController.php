@@ -37,7 +37,9 @@ class SystemController extends AbstractController
         $log->setType($body->type);
         $log->setCreatedDate(new \DateTime());
         $log->setEmail($associatedAccount->email);
-        $log->setSid($body->sid);
+        if(!empty($body->sid)) {
+            $log->setSid($body->sid);
+        }
 
         $em = $doctrine->getManager();
         $em->persist($log);
